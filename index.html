@@ -139,12 +139,12 @@ button.on{background:var(--accent);color:#1a1a1a;border-color:var(--accent)}
 <div id="ambience" class="hud">ASHGROVE ACADEMY <span>·</span> EXPLORE YOUR STORY</div>
 <div id="prompt" class="hud" hidden></div>
 <div id="toasts" class="hud"></div>
-<div id="keys" class="hud">WASD đi · kéo chuột ngang/dọc xoay camera · Q,R xoay ngang · lăn zoom · E tương tác · C cúi · I túi · M bản đồ · L nhân vật · P ảnh · T chờ · F5/F9 lưu/tải</div>
+<div id="keys" class="hud">WASD đi · kéo chuột ngang/dọc xoay camera · Q,R xoay ngang · V đổi góc · lăn zoom · E tương tác · C cúi · I túi · M bản đồ · L nhân vật · P ảnh · T chờ · F5/F9 lưu/tải</div>
 <div id="btns">
  <button id="bC"><span>◆</span><small>Nhân vật</small></button><button id="bP"><span>▣</span><small>Ảnh</small></button>
  <button id="bI"><span>◫</span><small>Túi đồ</small></button><button id="bM"><span>⌖</span><small>Bản đồ</small></button><button id="bQ"><span>☰</span><small>Nhiệm vụ</small></button>
  <button id="bT"><span>◷</span><small>Chờ 30'</small></button><button id="bS"><span>⤓</span><small>Lưu</small></button><button id="bL"><span>⤒</span><small>Tải</small></button>
- <button id="bMobile" aria-label="Chế độ điều khiển" aria-pressed="false"><span>◎</span><small>Mobile</small></button><button id="bInstall"><span>⇩</span><small>Cài game</small></button><button id="bU"><span>⟲</span><small>Thoát kẹt</small></button></div>
+ <button id="bCamera" title="Chuyển góc nhìn · V"><span>◉</span><small>Góc nhìn</small></button><button id="bMobile" aria-label="Chế độ điều khiển" aria-pressed="false"><span>◎</span><small>Mobile</small></button><button id="bInstall"><span>⇩</span><small>Cài game</small></button><button id="bU"><span>⟲</span><small>Thoát kẹt</small></button></div>
 <div id="mobile-controls" hidden><div id="joystick" role="group" aria-label="Joystick di chuyển"><span class="touch-label">DI CHUYỂN</span><div id="joystick-thumb"></div></div><div id="touch-actions"><button id="touch-crouch" aria-pressed="false" aria-label="Cúi hoặc đứng">⌄<small>Cúi</small></button><button id="touch-interact" aria-label="Tương tác">●<small>Tương tác</small></button><div id="touch-zoom"><button id="touch-zoom-out" aria-label="Thu nhỏ camera">−</button><button id="touch-zoom-in" aria-label="Phóng gần camera">+</button></div></div><div id="touch-tip">Kéo ngang/dọc trên cảnh để xoay tự do · Chụm hai ngón để zoom</div></div>
 <div id="modal" class="modal" hidden><div class="box" id="mbox"></div></div>
 <div id="scene" class="modal" hidden><div class="box"><div class="who" id="sw"></div><p id="st"></p><button id="sn">Tiếp tục ▸</button></div></div>
@@ -822,7 +822,7 @@ function makePerson(L){const g=new THREE.Group();scene.add(g);
 function animate(rig,moving,dt,speed=1){if(moving)rig.ph+=dt*9*speed;else rig.ph*=.85;const s=Math.sin(rig.ph)*(moving?.6:0);
  rig.lL.rotation.x=s;rig.lR.rotation.x=-s;rig.aL.rotation.x=-s*.8;rig.aR.rotation.x=s*.8;}
 
-const CAM_PITCH_MIN=-.035,CAM_PITCH_MAX=1.2,CAM_PITCH_DEFAULT=.58;
+const CAM_PITCH_MIN=-.08,CAM_PITCH_MAX=1.2,CAM_PITCH_DEFAULT=.08;
 const P={rig:makePerson({skin:0xf0c49a,shirt:0xd94f3d,pants:0x34557a,hair:0x5a3a22,style:'spiky'}),x:S.pos[0],z:S.pos[1],f:S.pos[2],yaw:0,pitch:CAM_PITCH_DEFAULT,face:Math.PI,crouch:false,hidden:false,b:'dorm',room:null,space:''};
 function condOk(c){if(!c)return true;if(c==='tue')return weekday()===1;if(c==='sat')return weekday()===5;if(c==='storm')return weekday()===3&&(hour()>=19||hour()<6);return !!S.flags[c];}
 function schedRow(n){const h=hour();const rows=n.sched.filter(e=>condOk(e[2]));let cur=null;for(const e of rows)if(e[0]<=h)cur=e;return cur||rows[rows.length-1];}
@@ -1462,14 +1462,14 @@ function camSees(c,t){if(!camOn(c)||c.f!==P.f||P.space!==c.space)return false;co
 /* =====================================================================
    INPUT
    ===================================================================== */
-const K={},TOUCH={x:0,y:0,reset:null},cameraPointers=new Map();let zoom=1;
-function clearGameInput(){Object.keys(K).forEach(k=>K[k]=0);TOUCH.x=TOUCH.y=0;cameraPointers.clear();TOUCH.reset?.();}
+const K={},TOUCH={x:0,y:0,reset:null},cameraPointers=new Map();let zoom=1,cameraPreset=0;
+function clearGameInput(){Object.keys(K).forEach(k=>K[k]=0);TOUCH.x=TOUCH.y=0;cameraPointers.clear();mouseLook=false;TOUCH.reset?.();}
 addEventListener('blur',clearGameInput);
 document.addEventListener('visibilitychange',()=>{if(document.hidden)clearGameInput();});
 addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(e.key==='F5'||e.key==='F9')e.preventDefault();
  if(!sc.hidden){if(k==='e'||k===' '||k==='enter')nextLine();return;}
  if(!modal.hidden){if(k==='escape'||k==='i'||k==='m')closeModal();return;}
- K[k]=1;if(k==='e')interact();if(k==='c')P.crouch=!P.crouch;if(k==='i')inv();if(k==='m')showMap();if(k==='t')wait();if(e.key==='F5')save();if(e.key==='F9')load();});
+ if(['w','a','s','d','q','r','v','arrowleft','arrowright','arrowup','arrowdown'].includes(k))e.preventDefault();K[k]=1;if(k==='e')interact();if(k==='c')P.crouch=!P.crouch;if(k==='v'&&!e.repeat)cycleCameraView();if(k==='i')inv();if(k==='m')showMap();if(k==='t')wait();if(e.key==='F5')save();if(e.key==='F9')load();});
 addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
 // Desktop mouse look uses native mouse events so vertical dragging works reliably in Chrome/Edge.
 let mouseLook=false,mouseX=0,mouseY=0;
@@ -1489,7 +1489,11 @@ cv.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')return;const ol
 });
 for(const event of['pointerup','pointercancel','lostpointercapture'])cv.addEventListener(event,e=>{if(e.pointerType!=='mouse')cameraPointers.delete(e.pointerId);});
 cv.addEventListener('wheel',e=>{if(!paused)zoom=Math.max(.55,Math.min(1.7,zoom+e.deltaY*.001));},{passive:true});
-bI.onclick=inv;bM.onclick=showMap;bQ.onclick=questLog;bT.onclick=wait;bS.onclick=()=>save();bL.onclick=load;
+function cycleCameraView(){if(paused)return;cameraPreset=(cameraPreset+1)%3;
+ const presets=[{name:'Sau vai',pitch:CAM_PITCH_DEFAULT,zoom:1,front:false},{name:'Trực diện',pitch:0,zoom:.7,front:true},{name:'Từ trên cao',pitch:.85,zoom:1.4,front:false}],view=presets[cameraPreset];
+ P.yaw=P.face+(view.front?0:Math.PI);P.pitch=view.pitch;zoom=view.zoom;clearGameInput();document.getElementById('bCamera').title='Góc nhìn: '+view.name+' · V';toast('Góc nhìn: '+view.name+' · kéo ngang/dọc để chỉnh.');}
+ document.getElementById('bCamera').onclick=cycleCameraView;
+ bI.onclick=inv;bM.onclick=showMap;bQ.onclick=questLog;bT.onclick=wait;bS.onclick=()=>save();bL.onclick=load;
 function wait(){if(paused)return;S.min+=30;toast('Bạn la cà 30 phút.');NPCS.forEach(n=>{n.ov=null;spawnNPC(n);});}
 function nearest(){const ev=encounterState().active;if(ev&&P.f===0&&canInteractAt(ev.x,ev.z,0)&&Math.hypot(P.x-ev.x,P.z-ev.z)<2.6)return{o:{label:'Giúp đỡ hoặc bỏ mặc · '+npc(ev.npc).name,act:openEncounter}};let best=null,bd=2;
  for(const n of NPCS){if(n.away||n.f!==P.f||!canInteractAt(n.x,n.z,n.f))continue;const d=Math.hypot(n.x-P.x,n.z-P.z);if(d<bd){bd=d;best={npc:n};}}
@@ -1601,8 +1605,8 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
  const pg=P.rig.g;pg.position.set(P.x,P.f*FH,P.z);let df=P.face-pg.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));pg.rotation.y+=df*.25;
  pg.scale.y=P.crouch?.72:1;animate(P.rig,pMoving,dt,P.crouch?.6:1.2);P.rig.vest.visible=S.disguise==='blazer';P.rig.apron.visible=S.disguise==='apron';
  // camera — GTA-style orbit: drag vertically from high overview down to a near eye-level/direct view
- camYaw+=(P.yaw-camYaw)*.12;camPitch+=(P.pitch-camPitch)*.12;const ind=P.b!=='yard',orbit=(ind?12.8:15.6)*zoom,by=P.f*FH;
- const camDist=Math.cos(camPitch)*orbit,camLift=Math.sin(camPitch)*orbit,eyeBase=by+1.45,targetY=by+1.28;
+ const orbitEase=1-Math.exp(-dt*14);camYaw+=(P.yaw-camYaw)*orbitEase;camPitch+=(P.pitch-camPitch)*orbitEase;const ind=P.b!=='yard',orbit=(ind?5.6:7.2)*zoom,by=P.f*FH;
+ const camDist=Math.cos(camPitch)*orbit,camLift=Math.sin(camPitch)*orbit,eyeBase=by+1.45,targetY=by+(P.crouch?.95:1.4);
  cam.position.set(P.x+Math.sin(camYaw)*camDist,Math.max(by+1.05,eyeBase+camLift),P.z+Math.cos(camYaw)*camDist);avoidClosedBuildings();cam.lookAt(P.x,targetY,P.z);
  // Only the occupied building loses upper floors. Other buildings retain their full shell.
  Object.entries(GRP).forEach(([b,fl])=>Object.entries(fl).forEach(([f,g])=>{f=+f;g.visible=P.f===-1?b==='base':b==='base'?false:b===P.b?f<=P.f:true;}));

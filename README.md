@@ -1,5 +1,9 @@
 # Restricted Access · Ashgrove Stories
 
+Chơi online: https://adbosp.github.io/restricted.github.io/
+
+Camera ngôi thứ ba mặc định ở gần ngang tầm nhân vật. Giữ chuột trái và kéo ngang/dọc trên cảnh 3D để xoay quanh nhân vật và nâng/hạ camera; trên mobile kéo bằng ngón tay, có thể dùng cùng lúc với joystick. Lăn chuột, chụm hai ngón hoặc nút − / + để zoom. Nút **Góc nhìn** (phím **V** trên máy tính) chuyển lần lượt **Trực diện → Từ trên cao → Sau vai**. Góc trực diện hạ camera ngang thân trên và xoay về phía mặt nhân vật; sau đó vẫn có thể kéo tự do. Camera giữ giới hạn sàn và tránh các tòa nhà/phòng kín ở mọi góc nhìn.
+
 Mở `RestrictedAccess.html` bằng Chrome hoặc Edge. Giữ thư mục `vendor` bên cạnh file HTML; thư viện Three.js đã được lưu tại máy để cảnh 3D không phụ thuộc CDN. Font Google có font hệ thống thay thế khi không có mạng.
 
 ## Mobile và cài game
@@ -19,7 +23,7 @@ Sau khi tải đầy đủ và trạng thái báo **Đã sẵn sàng chơi ngo�
 
 Kiểm tra trên máy tính bằng `python -m http.server 8765 --bind 127.0.0.1`, rồi mở `http://127.0.0.1:8765/RestrictedAccess.html`. `localhost` hỗ trợ thử PWA trên chính máy tính; địa chỉ này không phải đường dẫn để điện thoại truy cập. Mở file trực tiếp hoặc dùng HTTP qua địa chỉ LAN vẫn chơi được, nhưng cài đặt/ngoại tuyến trên điện thoại cần HTTPS.
 
-Khi thay đổi tài nguyên được phân phối, tăng phiên bản `CACHE` trong `sw.js`. Bản mới tải vào nền; đóng tất cả cửa sổ game rồi mở lại để chuyển trọn bộ tài nguyên sang bản mới. Thư mục backups và các script kiểm tra không cần đưa lên máy chủ. Bản trước cập nhật mobile: `backups/RestrictedAccess.before-mobile.html`.
+Khi thay đổi tài nguyên được phân phối, tăng phiên bản `CACHE` trong `sw.js`. Bản mới tải vào nền và kích hoạt tự động; tải lại trang hoặc mở lại ứng dụng để nhận camera và tài nguyên mới. Thư mục backups và các script kiểm tra không cần đưa lên máy chủ. Bản trước cập nhật mobile: `backups/RestrictedAccess.before-mobile.html`.
 
 `node verify-mobile.cjs` kiểm tra cảm ứng đa điểm, joystick analog, camera, cúi/tương tác, dừng điều khiển, chuyển/lưu chế độ, màn hình dọc/ngang, manifest/icon, điều kiện cài của Chrome và khởi động/tải save ngoại tuyến. `mobile-results.json` ghi kết quả. Kiểm tra chạy bằng Chrome giả lập cảm ứng Android/iOS; chưa cài thử trên điện thoại thật.
 
@@ -47,3 +51,5 @@ Tới gần cửa sổ có điểm tương tác rồi nhấn **E** để mở g�
 Ô quan sát mặc định mở gần kín màn hình. Nút **⛶ Toàn màn hình** nằm cạnh **Đóng · Esc** ở góc trên bên phải; nhấn **⛶ Thu nhỏ** để trở lại. Trình duyệt nhúng không hỗ trợ fullscreen sẽ dùng chế độ phủ kín khung trình duyệt. Độ phân giải và tỷ lệ camera tự điều chỉnh theo kích thước ô quan sát.
 
 `verify-room-privacy.cjs` kiểm tra tất cả 54 phòng kín, các mặt ngoài, hướng xoay và giới hạn zoom, phòng cạnh hành lang, vị trí camera, nhìn cửa sổ/xem trộm, đóng góc quan sát, quyền theo tầng và giao diện điện thoại. Kết quả nằm trong `room-privacy-results.json`. Bản ngay trước thay đổi này được giữ ở `backups/RestrictedAccess.before-room-privacy.html`.
+
+`node verify-camera.cjs` kiểm tra xoay ngang/dọc bằng chuột và cảm ứng, giới hạn pitch, góc ngang tầm/trực diện, phím V, reset khi mất tiêu điểm/mở modal, và joystick cùng lúc với xoay dọc. `camera-results.json` ghi kết quả.

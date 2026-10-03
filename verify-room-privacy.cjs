@@ -7,13 +7,13 @@ const {execFileSync}=require('node:child_process');const fs=require('node:fs');c
   await page.setViewportSize({width:1440,height:900});await page.reload();await page.waitForFunction(()=>typeof applyRoomPrivacy==='function');
   await page.evaluate(()=>{while(!sc.hidden)nextLine();paused=true;S.min=600;document.getElementById('toasts').replaceChildren();});
   // Render from eight directions and both zoom limits, around each exterior side of the dorm.
-  for(const [x,z] of[[-36,5],[-60,5],[-50,27],[-50,-15],[-6,4],[34,10]])for(const yaw of[0,Math.PI/2,Math.PI,Math.PI*1.5])for(const value of[.55,1.7]){
-   await page.evaluate(({x,z,yaw,value})=>{tp(x,z,0);P.yaw=camYaw=yaw;zoom=value;paused=true;},{x,z,yaw,value});await page.waitForTimeout(35);
+  for(const [x,z] of[[-36,5],[-60,5],[-50,27],[-50,-15],[-6,4],[34,10]])for(const yaw of[0,Math.PI/2,Math.PI,Math.PI*1.5])for(const value of[.55,1.7])for(const pitch of[-.08,0,.08,1.2]){
+   await page.evaluate(({x,z,yaw,value,pitch})=>{tp(x,z,0);P.yaw=camYaw=yaw;P.pitch=camPitch=pitch;zoom=value;paused=true;},{x,z,yaw,value,pitch});await page.waitForTimeout(35);
    check(await page.evaluate(()=>Object.values(ROOM_CONTENT).every(g=>!g.visible)&&WALLMESH.every(w=>w.s===1)&&Object.values(ROOM_CEILINGS).every(g=>g.visible)),'Exterior orbit cannot disclose any indoor room');
    check(await page.evaluate(()=>!Object.entries(BLD).some(([id,b])=>!b.fence&&cam.position.x>b.x0&&cam.position.x<b.x1&&cam.position.z>b.z0&&cam.position.z<b.z1&&cam.position.y>=0&&cam.position.y<b.floors*FH)),'Orbit camera does not enter a foreign building');
-   check(await page.evaluate(()=>cam.position.y-P.f*FH>6),'Camera collision preserves useful overhead framing');
+   check(await page.evaluate(()=>cam.position.y-P.f*FH>=1.05),'Camera stays above the floor at every pitch');
   }
-  await page.evaluate(()=>{tp(-36,5,0);P.yaw=camYaw=-Math.PI/2;zoom=1;});await page.waitForTimeout(60);await page.screenshot({path:'privacy-outside.png'});
+  await page.evaluate(()=>{tp(-36,5,0);P.yaw=camYaw=-Math.PI/2;P.pitch=camPitch=CAM_PITCH_DEFAULT;zoom=1;});await page.waitForTimeout(60);await page.screenshot({path:'privacy-outside.png'});
   // Every enclosed room, including basement/attic/old building, isolates its own contents.
   const ids=await page.evaluate(()=>ROOMS.filter(isEnclosedRoom).map(r=>r.id));
   for(const id of ids){
@@ -54,7 +54,7 @@ const {execFileSync}=require('node:child_process');const fs=require('node:fs');c
   check(await page.evaluate(()=>!Object.keys(JSON.parse(localStorage.getItem('ra_save3'))).some(k=>/view|privacy/i.test(k))),'Save contains no permanent viewing permission');await page.evaluate(()=>closeModal());
   await page.setViewportSize({width:390,height:844});await page.evaluate(o=>{tp(o.x,o.z,o.f);openRoomView('laundry',o);},windowObserver);await page.waitForTimeout(150);
   const box=await page.locator('#room-view').boundingBox();check(box.x>=0&&box.x+box.width<=390,'Mobile window view fits width');await page.screenshot({path:'privacy-window-mobile.png'});
-  await page.evaluate(()=>closeModal());await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>{localStorage.removeItem('ra_save3');tp(-36,5,0);P.yaw=camYaw=-Math.PI/2;zoom=1;paused=false;});
+  await page.evaluate(()=>closeModal());await page.setViewportSize({width:1440,height:900});await page.evaluate(()=>{localStorage.removeItem('ra_save3');tp(-36,5,0);P.yaw=camYaw=-Math.PI/2;P.pitch=camPitch=CAM_PITCH_DEFAULT;zoom=1;paused=false;});
   check(errors.length===0,'No runtime errors: '+errors.join('; '));fs.writeFileSync('room-privacy-results.json',JSON.stringify({status:'passed',checks,roomsChecked:ids.length,errors,screenshots:['privacy-outside.png','privacy-inside.png','privacy-corridor.png','privacy-window.png','privacy-peek.png','privacy-window-mobile.png']},null,2));console.log(JSON.stringify({status:'passed',checks,roomsChecked:ids.length,errors}));
  }finally{await browser.close();}
 })().catch(e=>{console.error(e);process.exitCode=1});

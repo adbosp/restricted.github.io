@@ -1,0 +1,43 @@
+const {chromium}=require('C:/Users/ROPY/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const {execFileSync}=require('node:child_process'),assert=require('node:assert/strict'),fs=require('node:fs');
+(async()=>{
+ const raw=execFileSync('cmd.exe',['/d','/s','/c','npx --yes agent-browser get cdp-url'],{encoding:'utf8'});
+ const browser=await chromium.connectOverCDP(raw.slice(raw.indexOf('ws://')).trim());
+ const context=await browser.newContext({viewport:{width:1440,height:900}}),page=await context.newPage();let checks=0;const errors=[];
+ page.on('pageerror',error=>errors.push(error.message));const check=(value,message)=>{assert.ok(value,message);checks++;};
+ try{
+  await page.goto(process.env.GAME_URL||'http://127.0.0.1:8765/RestrictedAccess.html',{waitUntil:'domcontentloaded'});
+  await page.waitForFunction(()=>typeof cycleCameraView==='function');
+  await page.evaluate(()=>{while(!sc.hidden)nextLine();S.min=600;tp(-6,25,0);P.yaw=camYaw=0;P.face=Math.PI;});
+  await page.waitForTimeout(300);
+  check(await page.evaluate(()=>cam.position.y<2.2&&cam.position.distanceTo(new THREE.Vector3(P.x,1.4,P.z))<8),'Default camera is close to character eye height');
+  const initial=await page.evaluate(()=>({pitch:P.pitch,yaw:P.yaw}));
+  await page.mouse.move(650,500);await page.mouse.down();await page.mouse.move(720,650,{steps:5});await page.mouse.up();
+  check(await page.evaluate(old=>P.pitch>old.pitch+.3&&P.yaw<old.yaw-.3,initial),'Mouse drag changes yaw and pitch');
+  await page.mouse.move(600,750);await page.mouse.down();await page.mouse.move(600,200,{steps:6});await page.mouse.up();
+  check(await page.evaluate(()=>P.pitch===CAM_PITCH_MIN),'Upward drag can lower to eye level, with a safe minimum');
+  await page.mouse.move(600,200);await page.mouse.down();await page.mouse.move(600,850,{steps:6});await page.mouse.up();
+  check(await page.evaluate(()=>P.pitch===CAM_PITCH_MAX),'Downward drag can raise to overview, with a safe maximum');
+  await page.mouse.move(600,500);await page.mouse.down();await page.evaluate(()=>dispatchEvent(new Event('blur')));const pitch=await page.evaluate(()=>P.pitch);await page.mouse.move(600,600);await page.mouse.up();
+  check(await page.evaluate(old=>P.pitch===old&&!mouseLook,pitch),'Blur ends mouse drag');
+  await page.locator('#bCamera').click();await page.waitForFunction(()=>Math.abs(camPitch-P.pitch)<.01&&Math.abs(camYaw-P.yaw)<.01);
+  check(await page.evaluate(()=>cameraPreset===1&&P.pitch===0&&P.yaw===P.face),'Camera button selects direct front view');
+  check(await page.evaluate(()=>Math.abs(cam.position.y-1.45)<.1&&cam.position.z<P.z&&cam.position.distanceTo(new THREE.Vector3(P.x,1.4,P.z))<6),'Front view faces character from near eye height');
+  await page.evaluate(()=>{paused=true;document.getElementById('toasts').replaceChildren();});await page.screenshot({path:'camera-front.png'});await page.evaluate(()=>paused=false);
+  await page.keyboard.press('v');check(await page.evaluate(()=>cameraPreset===2&&P.pitch>.8),'V switches to overview');
+  await page.keyboard.press('v');check(await page.evaluate(()=>cameraPreset===0&&P.pitch===CAM_PITCH_DEFAULT),'V restores shoulder view');
+  await page.mouse.move(600,500);await page.mouse.down();await page.evaluate(()=>openModal('<p>Kiểm tra</p>'));await page.waitForTimeout(80);const frozen=await page.evaluate(()=>P.pitch);await page.mouse.move(600,700);await page.mouse.up();
+  check(await page.evaluate(value=>P.pitch===value&&!mouseLook,frozen),'Modal pauses camera and clears held mouse');await page.evaluate(()=>closeModal());
+  await page.evaluate(()=>{P.yaw=camYaw=0;P.pitch=camPitch=CAM_PITCH_DEFAULT;paused=true;});await page.screenshot({path:'camera-shoulder.png'});
+  const touch=await browser.newContext({viewport:{width:844,height:390},hasTouch:true,isMobile:true});const mobile=await touch.newPage();mobile.on('pageerror',error=>errors.push(error.message));
+  await mobile.goto(process.env.GAME_URL||'http://127.0.0.1:8765/RestrictedAccess.html');await mobile.evaluate(()=>{while(!sc.hidden)nextLine();S.min=600;tp(-6,25,0);});
+  const session=await touch.newCDPSession(mobile),box=await mobile.locator('#joystick').boundingBox();let a={id:1,x:box.x+box.width/2,y:box.y+box.height*.25},b={id:2,x:450,y:240};
+  const send=(type,points)=>session.send('Input.dispatchTouchEvent',{type,touchPoints:points});const before=await mobile.evaluate(()=>P.pitch);
+  await send('touchStart',[a,b]);b={...b,y:320};await send('touchMove',[a,b]);
+  check(await mobile.evaluate(old=>P.pitch>old+.2&&TOUCH.y<0,before),'Touch vertical orbit works while joystick is held');await send('touchEnd',[]);
+  await mobile.locator('#bCamera').scrollIntoViewIfNeeded();await mobile.locator('#bCamera').tap();await mobile.waitForTimeout(400);
+  check(await mobile.evaluate(()=>cameraPreset===1&&P.pitch===0),'Touch camera button selects front view');
+  await mobile.evaluate(()=>{paused=true;document.getElementById('toasts').replaceChildren();});await mobile.screenshot({path:'camera-front-mobile.png',scale:'css'});await touch.close();
+  check(errors.length===0,'No JavaScript errors');fs.writeFileSync('camera-results.json',JSON.stringify({checks,errors,url:process.env.GAME_URL||'local',screenshots:['camera-front.png','camera-shoulder.png','camera-front-mobile.png']},null,2));console.log(JSON.stringify({checks,errors}));
+ }finally{await context.close();await browser.close();}
+})().catch(error=>{console.error(error);process.exitCode=1;});

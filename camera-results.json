@@ -1,0 +1,10 @@
+{
+  "checks": 13,
+  "errors": [],
+  "url": "local",
+  "screenshots": [
+    "camera-front.png",
+    "camera-shoulder.png",
+    "camera-front-mobile.png"
+  ]
+}
