@@ -139,13 +139,13 @@ button.on{background:var(--accent);color:#1a1a1a;border-color:var(--accent)}
 <div id="ambience" class="hud">ASHGROVE ACADEMY <span>·</span> EXPLORE YOUR STORY</div>
 <div id="prompt" class="hud" hidden></div>
 <div id="toasts" class="hud"></div>
-<div id="keys" class="hud">WASD đi · kéo chuột/Q,R xoay · lăn zoom · E tương tác · C cúi · I túi · M bản đồ · L nhân vật · P ảnh · T chờ · F5/F9 lưu/tải</div>
+<div id="keys" class="hud">WASD đi · kéo chuột ngang/dọc xoay camera · Q,R xoay ngang · lăn zoom · E tương tác · C cúi · I túi · M bản đồ · L nhân vật · P ảnh · T chờ · F5/F9 lưu/tải</div>
 <div id="btns">
  <button id="bC"><span>◆</span><small>Nhân vật</small></button><button id="bP"><span>▣</span><small>Ảnh</small></button>
  <button id="bI"><span>◫</span><small>Túi đồ</small></button><button id="bM"><span>⌖</span><small>Bản đồ</small></button><button id="bQ"><span>☰</span><small>Nhiệm vụ</small></button>
  <button id="bT"><span>◷</span><small>Chờ 30'</small></button><button id="bS"><span>⤓</span><small>Lưu</small></button><button id="bL"><span>⤒</span><small>Tải</small></button>
  <button id="bMobile" aria-label="Chế độ điều khiển" aria-pressed="false"><span>◎</span><small>Mobile</small></button><button id="bInstall"><span>⇩</span><small>Cài game</small></button><button id="bU"><span>⟲</span><small>Thoát kẹt</small></button></div>
-<div id="mobile-controls" hidden><div id="joystick" role="group" aria-label="Joystick di chuyển"><span class="touch-label">DI CHUYỂN</span><div id="joystick-thumb"></div></div><div id="touch-actions"><button id="touch-crouch" aria-pressed="false" aria-label="Cúi hoặc đứng">⌄<small>Cúi</small></button><button id="touch-interact" aria-label="Tương tác">●<small>Tương tác</small></button><div id="touch-zoom"><button id="touch-zoom-out" aria-label="Thu nhỏ camera">−</button><button id="touch-zoom-in" aria-label="Phóng gần camera">+</button></div></div><div id="touch-tip">Kéo trên cảnh để xoay · Chụm hai ngón để zoom</div></div>
+<div id="mobile-controls" hidden><div id="joystick" role="group" aria-label="Joystick di chuyển"><span class="touch-label">DI CHUYỂN</span><div id="joystick-thumb"></div></div><div id="touch-actions"><button id="touch-crouch" aria-pressed="false" aria-label="Cúi hoặc đứng">⌄<small>Cúi</small></button><button id="touch-interact" aria-label="Tương tác">●<small>Tương tác</small></button><div id="touch-zoom"><button id="touch-zoom-out" aria-label="Thu nhỏ camera">−</button><button id="touch-zoom-in" aria-label="Phóng gần camera">+</button></div></div><div id="touch-tip">Kéo ngang/dọc trên cảnh để xoay tự do · Chụm hai ngón để zoom</div></div>
 <div id="modal" class="modal" hidden><div class="box" id="mbox"></div></div>
 <div id="scene" class="modal" hidden><div class="box"><div class="who" id="sw"></div><p id="st"></p><button id="sn">Tiếp tục ▸</button></div></div>
 
@@ -822,7 +822,8 @@ function makePerson(L){const g=new THREE.Group();scene.add(g);
 function animate(rig,moving,dt,speed=1){if(moving)rig.ph+=dt*9*speed;else rig.ph*=.85;const s=Math.sin(rig.ph)*(moving?.6:0);
  rig.lL.rotation.x=s;rig.lR.rotation.x=-s;rig.aL.rotation.x=-s*.8;rig.aR.rotation.x=s*.8;}
 
-const P={rig:makePerson({skin:0xf0c49a,shirt:0xd94f3d,pants:0x34557a,hair:0x5a3a22,style:'spiky'}),x:S.pos[0],z:S.pos[1],f:S.pos[2],yaw:0,face:Math.PI,crouch:false,hidden:false,b:'dorm',room:null,space:''};
+const CAM_PITCH_MIN=.03,CAM_PITCH_MAX=1.2,CAM_PITCH_DEFAULT=.72;
+const P={rig:makePerson({skin:0xf0c49a,shirt:0xd94f3d,pants:0x34557a,hair:0x5a3a22,style:'spiky'}),x:S.pos[0],z:S.pos[1],f:S.pos[2],yaw:0,pitch:CAM_PITCH_DEFAULT,face:Math.PI,crouch:false,hidden:false,b:'dorm',room:null,space:''};
 function condOk(c){if(!c)return true;if(c==='tue')return weekday()===1;if(c==='sat')return weekday()===5;if(c==='storm')return weekday()===3&&(hour()>=19||hour()<6);return !!S.flags[c];}
 function schedRow(n){const h=hour();const rows=n.sched.filter(e=>condOk(e[2]));let cur=null;for(const e of rows)if(e[0]<=h)cur=e;return cur||rows[rows.length-1];}
 function goalOf(n){if(n.ov&&S.min<n.ov.until)return n.ov;n.ov=null;if(typeof surpriseActive==='function'&&window.CODEX&&surpriseActive(n))return{room:CODEX[n.id].sur.room};const r=schedRow(n);return{room:r[1]};}
@@ -1472,9 +1473,9 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(e.key==='F5'||e.ke
 addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
 cv.addEventListener('pointerdown',e=>{if(paused||e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();cv.setPointerCapture(e.pointerId);cameraPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});});
 cv.addEventListener('pointermove',e=>{const old=cameraPointers.get(e.pointerId);if(!old)return;if(paused)return clearGameInput();
- const points=[...cameraPointers.values()],before=points.length>1?Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y):0,dx=e.clientX-old.x;
+ const points=[...cameraPointers.values()],before=points.length>1?Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y):0,dx=e.clientX-old.x,dy=e.clientY-old.y;
  old.x=e.clientX;old.y=e.clientY;
- if(points.length===1)P.yaw-=dx*.006;
+ if(points.length===1){P.yaw-=dx*.006;P.pitch=Math.max(CAM_PITCH_MIN,Math.min(CAM_PITCH_MAX,P.pitch+dy*.0048));}
  else{const after=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y);if(before>8&&after>8)zoom=Math.max(.55,Math.min(1.7,zoom*before/after));}
 });
 for(const event of['pointerup','pointercancel','lostpointercapture'])cv.addEventListener(event,e=>cameraPointers.delete(e.pointerId));
@@ -1551,7 +1552,7 @@ function questText(){const act=Object.keys(QUESTS).filter(k=>S.q[k]===1).slice(0
 /* =====================================================================
    MAIN LOOP
    ===================================================================== */
-const mini=document.getElementById('mini').getContext('2d');let last=performance.now(),camYaw=0,miniT=0;
+const mini=document.getElementById('mini').getContext('2d');let last=performance.now(),camYaw=0,camPitch=P.pitch,miniT=0;
 const v3=new THREE.Vector3(),skyDay=new THREE.Color(0x9fd0f4),skyDusk=new THREE.Color(0xe89a6a),skyNight=new THREE.Color(0x0e1630),tmpC=new THREE.Color();
 function groupVisible(b,f){const g=GRP[b]&&GRP[b][f];return g?g.visible:false;}
 function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimationFrame(tick);
@@ -1590,9 +1591,10 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
  // player rig
  const pg=P.rig.g;pg.position.set(P.x,P.f*FH,P.z);let df=P.face-pg.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));pg.rotation.y+=df*.25;
  pg.scale.y=P.crouch?.72:1;animate(P.rig,pMoving,dt,P.crouch?.6:1.2);P.rig.vest.visible=S.disguise==='blazer';P.rig.apron.visible=S.disguise==='apron';
- // camera
- camYaw+=(P.yaw-camYaw)*.12;const ind=P.b!=='yard';const dist=(ind?10:13)*zoom,hgt=(ind?11:12)*zoom,by=P.f*FH;
- cam.position.set(P.x+Math.sin(camYaw)*dist,by+hgt,P.z+Math.cos(camYaw)*dist);avoidClosedBuildings();cam.lookAt(P.x,by+.8,P.z);
+ // camera — full GTA-style orbit: horizontal yaw + vertical pitch, clamped above the horizon
+ camYaw+=(P.yaw-camYaw)*.12;camPitch+=(P.pitch-camPitch)*.12;const ind=P.b!=='yard',orbit=(ind?14.3:17.2)*zoom,by=P.f*FH;
+ const camDist=Math.cos(camPitch)*orbit,camLift=Math.sin(camPitch)*orbit;
+ cam.position.set(P.x+Math.sin(camYaw)*camDist,by+.8+camLift,P.z+Math.cos(camYaw)*camDist);avoidClosedBuildings();cam.lookAt(P.x,by+.8,P.z);
  // Only the occupied building loses upper floors. Other buildings retain their full shell.
  Object.entries(GRP).forEach(([b,fl])=>Object.entries(fl).forEach(([f,g])=>{f=+f;g.visible=P.f===-1?b==='base':b==='base'?false:b===P.b?f<=P.f:true;}));
  applyRoomPrivacy();
