@@ -1471,14 +1471,23 @@ addEventListener('keydown',e=>{const k=e.key.toLowerCase();if(e.key==='F5'||e.ke
  if(!modal.hidden){if(k==='escape'||k==='i'||k==='m')closeModal();return;}
  K[k]=1;if(k==='e')interact();if(k==='c')P.crouch=!P.crouch;if(k==='i')inv();if(k==='m')showMap();if(k==='t')wait();if(e.key==='F5')save();if(e.key==='F9')load();});
 addEventListener('keyup',e=>K[e.key.toLowerCase()]=0);
-cv.addEventListener('pointerdown',e=>{if(paused||e.pointerType==='mouse'&&e.button!==0)return;e.preventDefault();cv.setPointerCapture(e.pointerId);cameraPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});});
-cv.addEventListener('pointermove',e=>{const old=cameraPointers.get(e.pointerId);if(!old)return;if(paused)return clearGameInput();
+// Desktop mouse look uses native mouse events so vertical dragging works reliably in Chrome/Edge.
+let mouseLook=false,mouseX=0,mouseY=0;
+cv.addEventListener('mousedown',e=>{if(paused||e.button!==0)return;e.preventDefault();mouseLook=true;mouseX=e.clientX;mouseY=e.clientY;});
+addEventListener('mousemove',e=>{if(!mouseLook||paused)return;const dx=e.clientX-mouseX,dy=e.clientY-mouseY;mouseX=e.clientX;mouseY=e.clientY;P.yaw-=dx*.006;P.pitch=Math.max(CAM_PITCH_MIN,Math.min(CAM_PITCH_MAX,P.pitch+dy*.0048));});
+addEventListener('mouseup',e=>{if(e.button===0)mouseLook=false;});
+cv.addEventListener('mouseleave',e=>{if(!(e.buttons&1))mouseLook=false;});
+cv.addEventListener('dragstart',e=>e.preventDefault());
+
+// Touch/pen keeps Pointer Events for one-finger orbit and two-finger pinch zoom.
+cv.addEventListener('pointerdown',e=>{if(e.pointerType==='mouse'||paused)return;e.preventDefault();cv.setPointerCapture(e.pointerId);cameraPointers.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+cv.addEventListener('pointermove',e=>{if(e.pointerType==='mouse')return;const old=cameraPointers.get(e.pointerId);if(!old)return;if(paused)return clearGameInput();
  const points=[...cameraPointers.values()],before=points.length>1?Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y):0,dx=e.clientX-old.x,dy=e.clientY-old.y;
  old.x=e.clientX;old.y=e.clientY;
  if(points.length===1){P.yaw-=dx*.006;P.pitch=Math.max(CAM_PITCH_MIN,Math.min(CAM_PITCH_MAX,P.pitch+dy*.0048));}
  else{const after=Math.hypot(points[0].x-points[1].x,points[0].y-points[1].y);if(before>8&&after>8)zoom=Math.max(.55,Math.min(1.7,zoom*before/after));}
 });
-for(const event of['pointerup','pointercancel','lostpointercapture'])cv.addEventListener(event,e=>cameraPointers.delete(e.pointerId));
+for(const event of['pointerup','pointercancel','lostpointercapture'])cv.addEventListener(event,e=>{if(e.pointerType!=='mouse')cameraPointers.delete(e.pointerId);});
 cv.addEventListener('wheel',e=>{if(!paused)zoom=Math.max(.55,Math.min(1.7,zoom+e.deltaY*.001));},{passive:true});
 bI.onclick=inv;bM.onclick=showMap;bQ.onclick=questLog;bT.onclick=wait;bS.onclick=()=>save();bL.onclick=load;
 function wait(){if(paused)return;S.min+=30;toast('Bạn la cà 30 phút.');NPCS.forEach(n=>{n.ov=null;spawnNPC(n);});}
