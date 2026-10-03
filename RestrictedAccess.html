@@ -822,7 +822,7 @@ function makePerson(L){const g=new THREE.Group();scene.add(g);
 function animate(rig,moving,dt,speed=1){if(moving)rig.ph+=dt*9*speed;else rig.ph*=.85;const s=Math.sin(rig.ph)*(moving?.6:0);
  rig.lL.rotation.x=s;rig.lR.rotation.x=-s;rig.aL.rotation.x=-s*.8;rig.aR.rotation.x=s*.8;}
 
-const CAM_PITCH_MIN=.03,CAM_PITCH_MAX=1.2,CAM_PITCH_DEFAULT=.72;
+const CAM_PITCH_MIN=-.035,CAM_PITCH_MAX=1.2,CAM_PITCH_DEFAULT=.58;
 const P={rig:makePerson({skin:0xf0c49a,shirt:0xd94f3d,pants:0x34557a,hair:0x5a3a22,style:'spiky'}),x:S.pos[0],z:S.pos[1],f:S.pos[2],yaw:0,pitch:CAM_PITCH_DEFAULT,face:Math.PI,crouch:false,hidden:false,b:'dorm',room:null,space:''};
 function condOk(c){if(!c)return true;if(c==='tue')return weekday()===1;if(c==='sat')return weekday()===5;if(c==='storm')return weekday()===3&&(hour()>=19||hour()<6);return !!S.flags[c];}
 function schedRow(n){const h=hour();const rows=n.sched.filter(e=>condOk(e[2]));let cur=null;for(const e of rows)if(e[0]<=h)cur=e;return cur||rows[rows.length-1];}
@@ -1591,10 +1591,10 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
  // player rig
  const pg=P.rig.g;pg.position.set(P.x,P.f*FH,P.z);let df=P.face-pg.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));pg.rotation.y+=df*.25;
  pg.scale.y=P.crouch?.72:1;animate(P.rig,pMoving,dt,P.crouch?.6:1.2);P.rig.vest.visible=S.disguise==='blazer';P.rig.apron.visible=S.disguise==='apron';
- // camera — full GTA-style orbit: horizontal yaw + vertical pitch, clamped above the horizon
- camYaw+=(P.yaw-camYaw)*.12;camPitch+=(P.pitch-camPitch)*.12;const ind=P.b!=='yard',orbit=(ind?14.3:17.2)*zoom,by=P.f*FH;
- const camDist=Math.cos(camPitch)*orbit,camLift=Math.sin(camPitch)*orbit;
- cam.position.set(P.x+Math.sin(camYaw)*camDist,by+.8+camLift,P.z+Math.cos(camYaw)*camDist);avoidClosedBuildings();cam.lookAt(P.x,by+.8,P.z);
+ // camera — GTA-style orbit: drag vertically from high overview down to a near eye-level/direct view
+ camYaw+=(P.yaw-camYaw)*.12;camPitch+=(P.pitch-camPitch)*.12;const ind=P.b!=='yard',orbit=(ind?12.8:15.6)*zoom,by=P.f*FH;
+ const camDist=Math.cos(camPitch)*orbit,camLift=Math.sin(camPitch)*orbit,eyeBase=by+1.45,targetY=by+1.28;
+ cam.position.set(P.x+Math.sin(camYaw)*camDist,Math.max(by+1.05,eyeBase+camLift),P.z+Math.cos(camYaw)*camDist);avoidClosedBuildings();cam.lookAt(P.x,targetY,P.z);
  // Only the occupied building loses upper floors. Other buildings retain their full shell.
  Object.entries(GRP).forEach(([b,fl])=>Object.entries(fl).forEach(([f,g])=>{f=+f;g.visible=P.f===-1?b==='base':b==='base'?false:b===P.b?f<=P.f:true;}));
  applyRoomPrivacy();
