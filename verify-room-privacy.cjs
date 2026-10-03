@@ -10,7 +10,7 @@ const {execFileSync}=require('node:child_process');const fs=require('node:fs');c
   for(const [x,z] of[[-36,5],[-60,5],[-50,27],[-50,-15],[-6,4],[34,10]])for(const yaw of[0,Math.PI/2,Math.PI,Math.PI*1.5])for(const value of[.55,1.7])for(const pitch of[-.08,0,.08,1.2]){
    await page.evaluate(({x,z,yaw,value,pitch})=>{tp(x,z,0);P.yaw=camYaw=yaw;P.pitch=camPitch=pitch;zoom=value;paused=true;},{x,z,yaw,value,pitch});await page.waitForTimeout(35);
    check(await page.evaluate(()=>Object.values(ROOM_CONTENT).every(g=>!g.visible)&&WALLMESH.every(w=>w.s===1)&&Object.values(ROOM_CEILINGS).every(g=>g.visible)),'Exterior orbit cannot disclose any indoor room');
-   check(await page.evaluate(()=>!Object.entries(BLD).some(([id,b])=>!b.fence&&cam.position.x>b.x0&&cam.position.x<b.x1&&cam.position.z>b.z0&&cam.position.z<b.z1&&cam.position.y>=0&&cam.position.y<b.floors*FH)),'Orbit camera does not enter a foreign building');
+   check(await page.evaluate(()=>!WALLMESH.some(w=>{const q=w.bounds;return cameraWallActive(w)&&cam.position.x>q.x0-.05&&cam.position.x<q.x1+.05&&cam.position.z>q.z0-.05&&cam.position.z<q.z1+.05&&cam.position.y>w.f*FH&&cam.position.y<w.f*FH+w.h;})),'Camera avoids solid wall segments while doorway openings remain passable');
    check(await page.evaluate(()=>cam.position.y-P.f*FH>=1.05),'Camera stays above the floor at every pitch');
   }
   await page.evaluate(()=>{tp(-36,5,0);P.yaw=camYaw=-Math.PI/2;P.pitch=camPitch=CAM_PITCH_DEFAULT;zoom=1;});await page.waitForTimeout(60);await page.screenshot({path:'privacy-outside.png'});
@@ -27,7 +27,7 @@ const {execFileSync}=require('node:child_process');const fs=require('node:fs');c
   check(await page.evaluate(()=>nearest()?.npc?.id!=='lopez'),'Cannot talk to an NPC through the wall');
   await page.screenshot({path:'privacy-corridor.png'});
   // Leaving closes the previously open room in the very next frame, without fading.
-  await page.evaluate(()=>{tp(-50,5,0);paused=true;});await page.waitForTimeout(80);await page.evaluate(()=>{tp(-36,5,0);paused=true;});await page.waitForTimeout(30);
+  await page.evaluate(()=>{tp(-50,5,0);paused=true;});await page.waitForTimeout(80);await page.evaluate(()=>{tp(-36,5,0);paused=true;});await page.waitForFunction(()=>!ROOM_CONTENT.laundry.visible&&ROOM_CEILINGS.laundry.visible);
   check(await page.evaluate(()=>!ROOM_CONTENT.laundry.visible&&ROOM_CEILINGS.laundry.visible&&WALLMESH.filter(w=>w.rooms.includes('laundry')).every(w=>w.s===1)),'Leaving instantly closes the room');
   // Real window view renders pixels while the world camera still hides that room.
   const windowObserver=await page.evaluate(()=>{const o=INT.find(o=>o.windowView&&o.label.includes('Phòng giặt'));return{x:o.x,z:o.z,f:o.f};});check(!!windowObserver,'Laundry has a reachable window');

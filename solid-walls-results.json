@@ -1,0 +1,75 @@
+{
+  "checks": 190,
+  "errors": [],
+  "metrics": [
+    {
+      "name": "KTX entrance",
+      "direction": -1,
+      "maxStep": 0.025000000000005684,
+      "minClearance": 1,
+      "leafInfluence": 0,
+      "passedDoor": true
+    },
+    {
+      "name": "KTX entrance",
+      "direction": 1,
+      "maxStep": 0.025000000000005684,
+      "minClearance": 1,
+      "leafInfluence": 0,
+      "passedDoor": true
+    },
+    {
+      "name": "Main entrance",
+      "direction": -1,
+      "maxStep": 0.025000000000000355,
+      "minClearance": 1,
+      "leafInfluence": 0,
+      "passedDoor": true
+    },
+    {
+      "name": "Main entrance",
+      "direction": 1,
+      "maxStep": 0.025000000000000355,
+      "minClearance": 1,
+      "leafInfluence": 0,
+      "passedDoor": true
+    },
+    {
+      "name": "Laundry door",
+      "direction": -1,
+      "maxStep": 0.025000000000005684,
+      "minClearance": 1,
+      "leafInfluence": 0,
+      "passedDoor": true
+    },
+    {
+      "name": "Laundry door",
+      "direction": 1,
+      "maxStep": 0.025000000000005684,
+      "minClearance": 1,
+      "leafInfluence": 0,
+      "passedDoor": true
+    },
+    {
+      "name": "Math classroom",
+      "direction": -1,
+      "maxStep": 0.02188102274573621,
+      "minClearance": 0.514904176168317,
+      "leafInfluence": 0,
+      "passedDoor": true
+    },
+    {
+      "name": "Math classroom",
+      "direction": 1,
+      "maxStep": 0.002178445769716042,
+      "minClearance": 0.514904176168317,
+      "leafInfluence": 0,
+      "passedDoor": true
+    }
+  ],
+  "url": "local",
+  "screenshots": [
+    "solid-walls-inside.png",
+    "doorway-camera.png"
+  ]
+}

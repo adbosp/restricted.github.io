@@ -2,7 +2,7 @@
 
 Chơi online: https://adbosp.github.io/restricted.github.io/
 
-Camera ngôi thứ ba mặc định ở gần ngang tầm nhân vật. Giữ chuột trái và kéo ngang/dọc trên cảnh 3D để xoay quanh nhân vật và nâng/hạ camera; trên mobile kéo bằng ngón tay, có thể dùng cùng lúc với joystick. Lăn chuột, chụm hai ngón hoặc nút − / + để zoom. Nút **Góc nhìn** (phím **V** trên máy tính) chuyển lần lượt **Trực diện → Từ trên cao → Sau vai**. Góc trực diện hạ camera ngang thân trên và xoay về phía mặt nhân vật; sau đó vẫn có thể kéo tự do. Camera giữ giới hạn sàn và tránh các tòa nhà/phòng kín ở mọi góc nhìn.
+Camera ngôi thứ ba mặc định ở gần ngang tầm nhân vật. Giữ chuột trái và kéo ngang/dọc trên cảnh 3D để xoay quanh nhân vật và nâng/hạ camera; trên mobile kéo bằng ngón tay, có thể dùng cùng lúc với joystick. Lăn chuột, chụm hai ngón hoặc nút − / + để zoom. Nút **Góc nhìn** (phím **V** trên máy tính) chuyển lần lượt **Trực diện → Từ trên cao → Sau vai**. Góc trực diện hạ camera ngang thân trên và xoay về phía mặt nhân vật; sau đó vẫn có thể kéo tự do. Camera tránh tường đặc, trần phòng khác và mái nhà khác, nhưng đi xuyên cánh cửa để không bị đẩy/giật khi cửa mở hoặc đóng. Khoảng cách orbit không đổi tại ranh giới trong/ngoài nhà; sau vật cản, camera giãn lại từ từ.
 
 Mở `RestrictedAccess.html` bằng Chrome hoặc Edge. Giữ thư mục `vendor` bên cạnh file HTML; thư viện Three.js đã được lưu tại máy để cảnh 3D không phụ thuộc CDN. Font Google có font hệ thống thay thế khi không có mạng.
 
@@ -44,7 +44,7 @@ Bản gốc được giữ trong `backups/RestrictedAccess.before-update.html`. 
 
 ## Quyền nhìn vào phòng
 
-Camera bên ngoài không mở tường hay mái để lộ phòng. Nội thất, nhân vật và nhãn tương tác của mỗi phòng chỉ xuất hiện trong góc nhìn chính khi Leo thực sự ở trong phòng đó. Đứng ở hành lang cũng không làm lộ các phòng bên cạnh. Rời phòng đóng lại nội thất ngay, kể cả sau dịch chuyển hoặc tải save. Camera tự điều chỉnh khoảng cách ngang khi gặp một tòa nhà kín và giữ độ cao để không chui vào mái nhà.
+Tường, cửa sổ, viền ngoài và cánh cửa giữ nguyên hình dạng/chiều cao khi vào phòng hoặc xoay camera. Chỉ trần/mái che phòng đang đứng được ẩn trong bố cục tầng hiện tại; phòng khác vẫn có trần che. Nội thất, nhân vật và nhãn tương tác của mỗi phòng chỉ xuất hiện trong góc nhìn chính khi Leo thực sự ở trong phòng đó. Đứng ở hành lang hoặc đưa camera qua khe cửa cũng không làm lộ các phòng bên cạnh. Rời phòng đóng lại nội thất ngay, kể cả sau dịch chuyển hoặc tải save.
 
 Tới gần cửa sổ có điểm tương tác rồi nhấn **E** để mở góc nhìn 3D giới hạn qua cửa sổ. Điểm xem trộm tại phòng thí nghiệm, phòng khách A và cửa phòng nhạc cũng mở góc quan sát; nút **Quan sát câu chuyện** giữ các tình tiết có sẵn. Nhấn **Esc** hoặc **Rời điểm quan sát** để đóng. Quyền quan sát không được lưu thành quyền nhìn xuyên phòng.
 
@@ -53,3 +53,5 @@ Tới gần cửa sổ có điểm tương tác rồi nhấn **E** để mở g�
 `verify-room-privacy.cjs` kiểm tra tất cả 54 phòng kín, các mặt ngoài, hướng xoay và giới hạn zoom, phòng cạnh hành lang, vị trí camera, nhìn cửa sổ/xem trộm, đóng góc quan sát, quyền theo tầng và giao diện điện thoại. Kết quả nằm trong `room-privacy-results.json`. Bản ngay trước thay đổi này được giữ ở `backups/RestrictedAccess.before-room-privacy.html`.
 
 `node verify-camera.cjs` kiểm tra xoay ngang/dọc bằng chuột và cảm ứng, giới hạn pitch, góc ngang tầm/trực diện, phím V, reset khi mất tiêu điểm/mở modal, và joystick cùng lúc với xoay dọc. `camera-results.json` ghi kết quả.
+
+`node verify-solid-walls.cjs` kiểm tra tường/cửa/viền/trần trong cả 54 phòng, đo đường đi camera hai chiều tại cửa KTX, cửa chính, cửa phòng giặt và lớp Toán, xác nhận chuyển động cánh cửa không ảnh hưởng camera, quyền nhìn vào phòng và bước qua cửa bằng điều khiển thật. `solid-walls-results.json` ghi kết quả và số đo dịch chuyển. Bản trước thay đổi tường được giữ tại `backups/RestrictedAccess.before-solid-walls.html` trên máy.

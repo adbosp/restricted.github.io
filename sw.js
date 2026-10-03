@@ -1,5 +1,5 @@
 /* Change the version whenever any shipped game asset changes. */
-const CACHE='ashgrove-mobile-v4';
+const CACHE='ashgrove-mobile-v5';
 const ROOT=new URL('./',self.location.href);
 const GAME=new URL('RestrictedAccess.html',ROOT).href;
 const ASSETS=['RestrictedAccess.html','index.html','vendor/three.r128.min.js','mobile.css','mobile.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png','icons/apple-touch-icon.png'];

@@ -74,7 +74,7 @@ const fs=require('node:fs'),assert=require('node:assert/strict');
   for(const icon of manifest.icons){const bytes=fs.readFileSync(icon.src);check(bytes.readUInt32BE(16)===+icon.sizes.split('x')[0]&&bytes.readUInt32BE(20)===+icon.sizes.split('x')[1],'PNG dimensions match '+icon.src);}
   try{installability=await cdp.send('Page.getInstallabilityErrors');check(installability.installabilityErrors.every(e=>e.errorId==='in-incognito'),'Only isolated test profile blocks installation');const normalPage=browser.contexts()[0].pages().find(p=>p.url().includes('RestrictedAccess.html'));const normalCDP=await browser.contexts()[0].newCDPSession(normalPage);installability.normalProfile=await normalCDP.send('Page.getInstallabilityErrors');check(installability.normalProfile.installabilityErrors.length===0,'Normal Chrome profile has no installability errors');}catch(error){if(error.name==='AssertionError')throw error;installability={unavailable:error.message};}
   await page.evaluate(()=>navigator.serviceWorker.ready);await page.waitForFunction(()=>!!navigator.serviceWorker.controller);
-  check(await page.evaluate(async()=>{const c=await caches.open('ashgrove-mobile-v4');return (await c.keys()).length===10;}),'Service worker precaches all ten required resources');
+  check(await page.evaluate(async()=>{const c=await caches.open('ashgrove-mobile-v5');return (await c.keys()).length===10;}),'Service worker precaches all ten required resources');
   await page.evaluate(()=>{S.min=725;S.rep=17;save(true);});
   await context.setOffline(true);await page.goto('http://127.0.0.1:8765/RestrictedAccess.html?source=pwa',{waitUntil:'domcontentloaded'});
   await page.waitForFunction(()=>typeof ren!=='undefined'&&ren.info.render.calls>0);
