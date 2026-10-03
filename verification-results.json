@@ -1,0 +1,13 @@
+{
+  "checks": 37,
+  "errors": [],
+  "status": "passed",
+  "screenshots": [
+    "campus-updated.png",
+    "fence-choice.png",
+    "washer-choice.png",
+    "mobile-choice.png",
+    "fence-updated.png",
+    "laundry-updated.png"
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "checks": 215,
+  "roomsChecked": 54,
+  "errors": [],
+  "screenshots": [
+    "privacy-outside.png",
+    "privacy-inside.png",
+    "privacy-corridor.png",
+    "privacy-window.png",
+    "privacy-peek.png",
+    "privacy-window-mobile.png"
+  ]
+}

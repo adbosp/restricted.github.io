@@ -1,0 +1,21 @@
+{
+  "checks": 39,
+  "errors": [],
+  "installability": {
+    "installabilityErrors": [
+      {
+        "errorId": "in-incognito",
+        "errorArguments": []
+      }
+    ],
+    "normalProfile": {
+      "installabilityErrors": []
+    }
+  },
+  "screenshots": [
+    "mobile-portrait.png",
+    "mobile-landscape.png",
+    "mobile-offline.png"
+  ],
+  "tested": "Chrome desktop with Android/iOS touch emulation; real phone install not tested"
+}
