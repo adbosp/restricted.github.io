@@ -1,4 +1,24 @@
-# Restricted Access · Ashgrove Stories
+# Restricted Access
+
+Chơi online: https://adbosp.github.io/restricted.github.io/
+
+## Cài game về điện thoại
+
+Mở link trên bằng trình duyệt điện thoại:
+
+- **Android (Chrome/Edge):** bấm nút **Cài game** ở đầu thanh công cụ, hoặc menu **⋮ → Cài đặt ứng dụng / Thêm vào màn hình chính**.
+- **iPhone/iPad (Safari):** bấm **Chia sẻ → Thêm vào MH chính**.
+
+Game đã cài mở toàn màn hình với biểu tượng riêng và chơi được khi không có mạng (sau lần mở đầu tiên). Bản lưu nằm trong bộ nhớ trình duyệt của máy đó.
+
+File cần có trên máy chủ HTTPS: `index.html` (cùng nội dung `RestrictedAccess.html`), `pwa.js`, `sw.js`, `manifest.webmanifest`, thư mục `icons/` và `vendor/`. Khi đổi bất kỳ file nào trong số đó, tăng số phiên bản `CACHE` trong `sw.js` để máy đã cài nhận bản mới.
+
+Bản game cũ (Ashgrove Stories) được giữ ở `backups/RestrictedAccess.before-v20.html`; `mobile.css`/`mobile.js` thuộc bản cũ đó.
+
+---
+
+## Ghi chú bản cũ
+
 
 Chơi online: https://adbosp.github.io/restricted.github.io/
 

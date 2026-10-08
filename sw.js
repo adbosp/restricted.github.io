@@ -1,8 +1,8 @@
 /* Change the version whenever any shipped game asset changes. */
-const CACHE='ashgrove-mobile-v5';
+const CACHE='ashgrove-mobile-v6';
 const ROOT=new URL('./',self.location.href);
 const GAME=new URL('RestrictedAccess.html',ROOT).href;
-const ASSETS=['RestrictedAccess.html','index.html','vendor/three.r128.min.js','mobile.css','mobile.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png','icons/apple-touch-icon.png'];
+const ASSETS=['RestrictedAccess.html','index.html','vendor/three.r128.min.js','pwa.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png','icons/apple-touch-icon.png'];
 self.addEventListener('install',event=>event.waitUntil((async()=>{const cache=await caches.open(CACHE);await cache.addAll(ASSETS.map(path=>new URL(path,ROOT).href));await self.skipWaiting();})()));
 // Activate updated assets immediately; open pages use the latest version on their next navigation.
 self.addEventListener('activate',event=>event.waitUntil((async()=>{for(const key of await caches.keys())if(key.startsWith('ashgrove-mobile-')&&key!==CACHE)await caches.delete(key);await self.clients.claim();})()));
