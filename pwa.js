@@ -18,3 +18,14 @@
   else say('Mở menu trình duyệt (⋮) và chọn "Cài đặt ứng dụng" hoặc "Thêm vào màn hình chính".');
  };
 })();
+
+/* Touch play: no long-press callout/copy menu, text selection, right-click menu, image drag or double-tap zoom. Form fields keep normal behaviour. */
+(()=>{
+ const st=document.createElement('style');
+ st.textContent='html,body,body *{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}input,textarea,select,[contenteditable]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}img,canvas,svg{-webkit-user-drag:none}html,body{touch-action:manipulation;overscroll-behavior:none}';
+ document.head.appendChild(st);
+ const editable=t=>t&&t.closest&&t.closest('input,textarea,select,[contenteditable]');
+ for(const ev of['contextmenu','selectstart','dragstart'])addEventListener(ev,e=>{if(!editable(e.target))e.preventDefault();},{capture:true});
+ // iOS: stop pinch-zoom of the page itself (game canvas handles its own gestures).
+ for(const ev of['gesturestart','gesturechange'])addEventListener(ev,e=>e.preventDefault(),{passive:false});
+})();
