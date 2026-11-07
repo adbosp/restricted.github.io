@@ -1,0 +1,35 @@
+const F={
+ bed(x,z,r,c=0x3a6ea5){const g=grp(x,z,r);mesh(B(1.1,.35,2.1),mat('wood',1,1),0,.25,0,g);mesh(B(1,.2,2),C(0xf2f2f2),0,.5,0,g);mesh(B(1.02,.22,1.3),C(c),0,.52,.35,g);mesh(B(.7,.15,.4),C(0xffffff),0,.66,-.75,g);mesh(B(1.1,.8,.1),mat('wood',1,1),0,.6,-1.05,g);return g;},
+ desk(x,z,r){const g=grp(x,z,r);mesh(B(1.3,.08,.65),mat('wood',1,1),0,.75,0,g);for(const a of[-.58,.58])for(const b of[-.26,.26])mesh(B(.05,.75,.05),C(0x444444),a,.37,b,g,false);return g;},
+ chair(x,z,r,c=0x2f4f6f){const g=grp(x,z,r);mesh(B(.46,.06,.46),C(c),0,.45,0,g);mesh(B(.46,.5,.06),C(c),0,.72,.2,g);return g;},
+ computer(x,z,r){const g=grp(x,z,r);mesh(B(.6,.4,.05),C(0x222222),0,1.05,0,g);mesh(B(.52,.32,.01),C(0x88ccff,0x2266aa),0,1.05,.03,g,false);mesh(B(.1,.2,.1),C(0x222222),0,.85,0,g,false);return g;},
+ table(x,z,n=4,c=0xc0392b){const g=grp(x,z);mesh(new THREE.CylinderGeometry(.8,.8,.08,18),mat('wood',1,1),0,.75,0,g);mesh(new THREE.CylinderGeometry(.08,.2,.75,8),C(0x333333),0,.37,0,g,false);
+  for(let i=0;i<n;i++)F.chair(x+Math.sin(i*6.283/n)*1.1,z+Math.cos(i*6.283/n)*1.1,i*6.283/n+Math.PI,c);return g;},
+ longtable(x,z,w,r=0){const g=grp(x,z,r);mesh(B(w,.08,1.2),mat('wood',1,1,0x9a7050),0,.75,0,g);mesh(B(w-.4,.7,.1),C(0x333333),0,.37,0,g,false);
+  for(let i=0;i<Math.floor(w/1.1);i++){const px=-w/2+.6+i*1.1;F.chair(x+(r?0:px),z+(r?px:0)+(r?0:-.95),0,0x34495e);F.chair(x+(r?0:px),z+(r?px:0)+(r?0:.95),Math.PI,0x34495e);}return g;},
+ shelf(x,z,r,c=0x8a6a4a){const g=grp(x,z,r);mesh(B(1.6,2,.4),mat('wood',1,1,c),0,1,0,g);
+  for(let y=.4;y<2;y+=.5)for(let i=0;i<7;i++)mesh(B(.15,rnd(.28,.4),.3),C([0xc0392b,0x2980b9,0x27ae60,0xf39c12,0x8e44ad][i%5]),-.65+i*.2,y+.17,.06,g,false);return g;},
+ cabinet(x,z,r){const g=grp(x,z,r);mesh(B(.9,1.4,.55),C(0x8a959e),0,.7,0,g);for(let y=.3;y<1.4;y+=.35)mesh(B(.8,.02,.02),C(0x333333),0,y,.28,g,false);return g;},
+ counter(x,z,w=4,r=0,top='metal'){const g=grp(x,z,r);mesh(B(w,1,.8),C(0xdddddd),0,.5,0,g);mesh(B(w+.1,.06,.9),mat(top,2,1),0,1.03,0,g,false);return g;},
+ plant(x,z){const g=grp(x,z);mesh(new THREE.CylinderGeometry(.25,.2,.45,10),C(0xb5651d),0,.22,0,g);mesh(new THREE.IcosahedronGeometry(.45,0),C(0x3f8f3a),0,.8,0,g);return g;},
+ sofa(x,z,r,c=0x6c5ce7){const g=grp(x,z,r);mesh(B(2,.45,.9),C(c),0,.3,0,g);mesh(B(2,.6,.2),C(c),0,.75,.35,g);for(const a of[-1,1])mesh(B(.2,.6,.9),C(c),a,.45,0,g);return g;},
+ locker(x,z,r,c=0x4a6fa5){const g=grp(x,z,r);mesh(B(.9,2,.6),C(c),0,1,0,g);mesh(B(.02,1.9,.02),C(0x222222),0,1,.31,g,false);for(let y=1.6;y<1.9;y+=.08)mesh(B(.5,.02,.02),C(0x222222),.2,y,.31,g,false);return g;},
+ crate(x,z,s=1,r=0){const g=grp(x,z,r);mesh(B(s,s,s),mat('crate',1,1),0,s/2,0,g);return g;},
+ rack(x,z,r){const g=grp(x,z,r);mesh(B(.8,2.2,1),C(0x1e2328),0,1.1,0,g);for(let y=.3;y<2.1;y+=.25)mesh(B(.04,.04,.02),C(0,Math.random()<.7?0x22ff66:0xff4433),-.25,y,.51,g,false);return g;},
+ washer(x,z,r){const g=grp(x,z,r);mesh(B(.9,1,.8),C(0xf5f5f5),0,.5,0,g);const d=mesh(new THREE.CylinderGeometry(.28,.28,.05,18),C(0x6a8ca8,0x0a1a2a),0,.5,.41,g,false);d.rotation.x=Math.PI/2;return g;},
+ board(x,z,r){const g=grp(x,z,r);mesh(B(4,1.5,.08),mat('chalk',1,1),0,1.7,0,g,false);return g;},
+ rug(x,z,w,d,c){plane(w,d,mat('carpet',w/2,d/2,c),x,.05,z);},
+ piano(x,z,r){const g=grp(x,z,r);mesh(B(1.6,1.2,.6),C(0x1a1a1a),0,.6,0,g);mesh(B(1.5,.05,.25),C(0xf5f5f5),0,.85,.4,g,false);return g;},
+ easel(x,z,r){const g=grp(x,z,r);mesh(B(.06,1.6,.06),C(0x8b6b3e),0,.8,0,g,false);mesh(B(.9,.7,.04),C([0xf6c1c1,0xc1e1f6,0xf6eec1][Math.floor(Math.random()*3)]),0,1.3,.05,g);return g;},
+ tv(x,z,r){const g=grp(x,z,r);mesh(B(1.8,1,.1),C(0x111111),0,1.4,0,g);mesh(B(1.7,.9,.02),C(0x223344,0x112233),0,1.4,.06,g,false);mesh(B(1.2,.5,.4),C(0x5a4030),0,.25,0,g);return g;},
+ boiler(x,z){const g=grp(x,z);mesh(new THREE.CylinderGeometry(.9,.9,2.4,16),mat('metal',2,1,0xc06040),0,1.2,0,g);mesh(new THREE.CylinderGeometry(.15,.15,1,8),mat('metal',1,1),0,2.8,0,g,false);return g;},
+ panel(x,z,r){const g=grp(x,z,r);mesh(B(1.2,1.8,.3),C(0x7a8a7a),0,1.2,0,g);mesh(B(.15,.3,.05),C(0xffcc00),0,1.4,.17,g,false);return g;},
+ copier(x,z,r){const g=grp(x,z,r);mesh(B(1,1.1,.7),C(0xdedede),0,.55,0,g);mesh(B(.9,.1,.6),C(0x333333),0,1.12,0,g,false);return g;},
+ safe(x,z,r){const g=grp(x,z,r);mesh(B(1,1.3,.9),C(0x2d3436),0,.65,0,g);mesh(new THREE.CylinderGeometry(.15,.15,.05,16),C(0xb0b0b0),0,.8,.47,g,false).rotation.x=Math.PI/2;return g;},
+ stove(x,z,r){const g=grp(x,z,r);mesh(B(1.4,.95,.8),C(0x9a9a9a),0,.47,0,g);mesh(new THREE.CylinderGeometry(.35,.3,.45,14),mat('metal',1,1),0,1.2,0,g);return g;},
+ examBed(x,z,r){const g=grp(x,z,r);mesh(B(.8,.7,1.9),C(0xbfe3f5),0,.35,0,g);mesh(B(.8,.1,1.9),C(0xffffff),0,.75,0,g,false);return g;},
+ workbench(x,z,r){const g=grp(x,z,r);mesh(B(2,.12,.8),mat('wood',1,1,0x9a7a5a),0,.9,0,g);for(const a of[-.9,.9])mesh(B(.1,.9,.7),C(0x555555),a,.45,0,g,false);mesh(B(2,1.2,.05),C(0x7a8a6a),0,1.6,-.38,g,false);return g;},
+ cam(x,z,face){const g=grp(x,z,Math.atan2(face[0],face[1]));mesh(B(.25,.2,.4),C(0xeeeeee),0,2.7,0,g,false);const led=mesh(B(.06,.06,.02),C(0,0xff2222),0,2.7,.21,g,false);return g;},
+ lux(kind,x,z,r=0,y=0,w=1,h=.8,d=1,c=0x8c5b3b){const g=grp(x,z,r);g.position.y=y;mesh(B(w,h,d),C(c),0,h/2,0,g);g.userData.lux=kind;return g;},
+};
+Object.keys(F).forEach(k=>{const f=F[k];F[k]=function(...a){const g=f.apply(this,a);if(g&&g.isObject3D)MODEL_SLOTS.push({g,kind:k==='lux'?a[0]:k,args:k==='lux'?a.slice(1):a});return g;};});

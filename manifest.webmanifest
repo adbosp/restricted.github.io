@@ -2,7 +2,7 @@
   "id": "./ashgrove",
   "name": "Restricted Access",
   "short_name": "Restricted",
-  "description": "Game 3D Restricted Access: khám phá học viện nội trú, chơi bằng cảm ứng và mở được khi không có mạng.",
+  "description": "Game 3D Restricted Access: thị trấn Maple Hollow, Vermont. Chơi bằng cảm ứng, mở được khi không có mạng.",
   "lang": "vi",
   "start_url": "./index.html?source=pwa",
   "scope": "./",
