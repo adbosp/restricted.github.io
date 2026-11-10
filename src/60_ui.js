@@ -22,7 +22,7 @@ function unstuck(){for(let r=.5;r<12;r+=.5)for(let a=0;a<16;a++){const x=P.x+Mat
 function zoneNow(){if(P.room){const r=P.room;if(r.perm&&S.flags[r.perm])return'public';if(r.lobby&&BLD[r.b].home)return'public';return r.zone;}
  if(P.x<-103.4&&P.z>-38.5&&P.z<-11.5)return'secure';return'public';}
 function isAuth(n){if(n.police)return true;return !!(P.b&&BLD[P.b].auth&&BLD[P.b].auth.includes(n.id));}
-function canSee(n){if(n.away||!isAuth(n))return false;const nb=bldAt(n.x,n.z);if(nb!==P.b)return false;
+function canSee(n){if(n.away||!isAuth(n)||(n.rig.pose&&n.rig.pose!=='sit'))return false;const nb=bldAt(n.x,n.z);if(nb!==P.b)return false;
  if(P.b){const rn=roomAt(n.x,n.z);if(rn!==P.room)return false;}
  const dx=P.x-n.x,dz=P.z-n.z,d=Math.hypot(dx,dz),range=P.b?(P.crouch?6:11):(P.crouch?8:15);if(d>range)return false;
  if(d>1.6&&(dx*Math.sin(n.face)+dz*Math.cos(n.face))/d<.25)return false;
@@ -88,7 +88,7 @@ const npcLook=n=>Object.assign({fem:n.fem},n.look);
 function relStatus(v){return v<=-20?['Thù ghét','var(--danger)']:v<0?['Khó chịu','#d86a3a']:v<15?['Người quen','var(--dim)']:v<35?['Thân thiện','var(--ok)']:v<60?['Thân thiết','var(--accent)']:['Say nắng','var(--accent2)'];}
 
 /* ---------- talking ---------- */
-function talk(n){const[txt,opts]=dlg[n.id]();n.face=Math.atan2(P.x-n.x,P.z-n.z);n.talkT=6;const v=S.rel[n.id]||0,[st,col]=relStatus(v);
+function talk(n){if(n.rig.pose==='sleep')return toast(n.name+' đang ngủ say. Tốt nhất đừng đánh thức.');if(n.rig.pose==='shower')return toast(n.name+' đang tắm. Rèm kéo kín.');const[txt,opts]=dlg[n.id]();n.face=Math.atan2(P.x-n.x,P.z-n.z);n.talkT=6;const v=S.rel[n.id]||0,[st,col]=relStatus(v);
  openModal(`<div class="talk"><div id="tp"></div><div><div class="who">${n.job}</div><h2>${n.name} <small style="font:600 12px var(--mono);color:var(--dim)">${n.age} tuổi</small></h2>
  <div class="hearts"><span style="color:${col}">${st}</span><div class="hb"><i style="width:${clamp(v,0,100)}%"></i></div><span>${v}</span></div></div></div>
  <p style="margin-top:12px">${txt}</p><div class="opts" id="dopts"></div>`);
@@ -214,7 +214,7 @@ function nearest(){let best=null,bd=2.3;
  if(!best)PEDS.forEach(p=>{if(!p.active)return;const d=Math.hypot(p.x-P.x,p.z-P.z);if(d<1.6&&d<bd){bd=d;best={ped:p};}});
  return best;}
 const PED_LINES=['"Sinh viên mới hả? Mùa mưa ở đây kéo dài tới tháng Năm, mua ủng đi."','"Đừng gửi tiền ở Ngân hàng Pryce. Vào thì dễ, ra thì khó."','"Lại có xe đen đậu trước Red Lantern cả đêm. Năm nay nhiều hơn năm ngoái."','"Cà phê ở Diner ngon nhất Crestmoor. Cũng là duy nhất."','"Thị trưởng Keller lại hứa sửa đường Elm St. Năm thứ ba rồi."','"Nhà Whitfield à? Tội nghiệp Sara. Từ sau vụ tai nạn của Mark..."','"Trời tạnh rồi đấy, tranh thủ phơi đồ đi."','"Cậu thấy bà Dawson nhà bên chưa? Bà ấy thấy cậu rồi đấy."'];
-function interact(){if(paused)return;const nb=nearest();if(!nb)return;if(nb.npc)return talk(nb.npc);if(nb.o)return nb.o.act();if(nb.ped){toast(nb.ped.name+': '+PED_LINES[(PEDS.indexOf(nb.ped)+day())%PED_LINES.length]);}}
+function interact(){if(paused||ACT)return;const nb=nearest();if(!nb)return;if(nb.npc)return talk(nb.npc);if(nb.o)return nb.o.act();if(nb.ped){toast(nb.ped.name+': '+PED_LINES[(PEDS.indexOf(nb.ped)+day())%PED_LINES.length]);}}
 
 /* =====================================================================
    MAIN LOOP
@@ -231,7 +231,7 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
   let mx=(K.d||K.arrowright?1:0)-(K.a||K.arrowleft?1:0),mz=(K.s||K.arrowdown?1:0)-(K.w||K.arrowup?1:0);
   if(JOY.on){mx=JOY.x;mz=JOY.y;}
   const mag=Math.min(1,Math.hypot(mx,mz));
-  if(mag>.12){pMoving=true;const sp=(P.crouch?2.3:K.shift?7.5:5.2)*dt*(JOY.on?Math.max(.45,mag):1),l=Math.hypot(mx,mz),s=Math.sin(P.yaw),c=Math.cos(P.yaw);
+  if(mag>.12&&!ACT){pMoving=true;const sp=(P.crouch?2.3:K.shift?7.5:5.2)*dt*(JOY.on?Math.max(.45,mag):1),l=Math.hypot(mx,mz),s=Math.sin(P.yaw),c=Math.cos(P.yaw);
    const dx=(mx*c+mz*s)/l*sp,dz=(-mx*s+mz*c)/l*sp;if(!blocked(P.x+dx,P.z))P.x+=dx;if(!blocked(P.x,P.z+dz))P.z+=dz;P.face=Math.atan2(dx,dz);}
   P.b=bldAt(P.x,P.z);P.room=P.b?roomAt(P.x,P.z):null;
   NPCS.forEach(n=>stepNPC(n,dt));pedTick(dt);
@@ -249,9 +249,9 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
   if(day()!==S.lastDay){S.lastDay=day();}
  }
  // player rig
- const pg=P.rig.g;pg.position.set(P.x,0,P.z);let df=P.face-pg.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));pg.rotation.y+=df*.25;pg.scale.y=P.crouch?.72:1;animate(P.rig,pMoving,dt,P.crouch?.6:1.2);
+ const pg=P.rig.g;pg.position.set(P.x,0,P.z);let df=P.face-pg.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));pg.rotation.y+=df*.25;pg.scale.y=P.crouch&&!P.rig.mx?.72:1;P.rig.run=!!K.shift&&!P.crouch;animate(P.rig,pMoving,dt,P.crouch?.6:1.2);
  // NPC rigs
- NPCS.forEach(n=>{const g=n.rig.g;g.visible=!n.away;if(n.away)return;g.position.set(n.x,0,n.z);let d=n.face-g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));g.rotation.y+=d*.2;animate(n.rig,n.moving&&!paused,dt);});
+ lifeFx(dt);NPCS.forEach(n=>{const g=n.rig.g;g.visible=!n.away;if(n.away)return;npcLife(n);g.position.set(n.x,0,n.z);let d=n.face-g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));g.rotation.y+=d*.2;animate(n.rig,n.moving&&!paused,dt);});
  // camera
  let dyw=P.yaw-camYaw;dyw=Math.atan2(Math.sin(dyw),Math.cos(dyw));camYaw+=dyw*.15;const ind=!!P.b;
  const dist=(ind?9:13)*zoom,cp=ind?Math.max(camPitch,.85):camPitch;const hz=Math.cos(cp)*dist,hy=Math.sin(cp)*dist+1.2;

@@ -291,6 +291,17 @@ const F={
  rack(x,z,r){const g=grp(x,z,r);mesh(B(.8,2.2,1),C(0x1e2328),0,1.1,0,g);for(let y=.3;y<2.1;y+=.25)mesh(B(.04,.04,.02),C(0,Math.random()<.7?0x22ff66:0xff4433),-.25,y,.51,g,false);return g;},
  toilet(x,z,r){const g=grp(x,z,r);mesh(B(.45,.42,.6),C(0xf6f6f2),0,.21,.05,g);mesh(B(.5,.7,.2),C(0xf6f6f2),0,.55,-.28,g);mesh(B(.46,.04,.5),C(0xe8e8e2),0,.44,.08,g,false);return g;},
  sink(x,z,r){const g=grp(x,z,r);mesh(B(.6,.85,.45),C(0xe2ded6),0,.42,0,g);mesh(B(.5,.06,.36),C(0x9ab0c0),0,.87,.02,g,false);mesh(B(.6,.8,.04),C(0xcfe3ee,0x223344),0,1.55,-.2,g,false);return g;},
+ shower(x,z){const g=grp(x,z);mesh(B(1.6,.12,1.6),C(0xeef2f4),0,.06,0,g,false);
+  const gl=new THREE.MeshLambertMaterial({color:0xcfe6f0,transparent:true,opacity:.28});
+  mesh(B(1.6,2.1,.04),C(0xdfe8ec),0,1.1,.78,g,false);mesh(B(.04,2.1,1.6),C(0xdfe8ec),.78,1.1,0,g,false);
+  mesh(B(.05,.05,.5),C(0x9aa4aa),.55,2.1,0,g,false).rotation.y=Math.PI/2;const head=mesh(new THREE.CylinderGeometry(.14,.1,.06,12),C(0xb8c2c8),.3,2.05,0,g,false);
+  mesh(B(1.62,.03,.03),C(0x9aa4aa),0,2.2,-.8,g,false);mesh(B(.03,.03,1.62),C(0x9aa4aa),-.8,2.2,0,g,false);
+  const cm=new THREE.MeshLambertMaterial({color:0x8ec5d6,transparent:true,opacity:.92,side:THREE.DoubleSide});
+  const c1=mesh(new THREE.PlaneGeometry(1.6,1.95),cm,0,1.2,-.8,g,false),c2=mesh(new THREE.PlaneGeometry(1.6,1.95),cm,-.8,1.2,0,g,false);c2.rotation.y=Math.PI/2;
+  const wg=new THREE.BufferGeometry(),N=46,pos=new Float32Array(N*6);wg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const water=new THREE.LineSegments(wg,new THREE.LineBasicMaterial({color:0xd8f0ff,transparent:true,opacity:.7}));g.add(water);water.visible=false;
+  const steam=[];for(let i=0;i<8;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.35,8,6),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false}));s.visible=false;g.add(s);steam.push({m:s,t:i/8});}
+  return{g,c1,c2,water,steam,N,head};},
  washer(x,z,r){const g=grp(x,z,r);mesh(B(.9,1,.8),C(0xf5f5f5),0,.5,0,g);const d=mesh(new THREE.CylinderGeometry(.28,.28,.05,18),C(0x6a8ca8,0x0a1a2a),0,.5,.41,g,false);d.rotation.x=Math.PI/2;return g;},
  board(x,z,r){const g=grp(x,z,r);mesh(B(4,1.5,.08),mat('chalk',1,1),0,1.7,0,g,false);return g;},
  rug(x,z,w,d,c){plane(w,d,mat('carpet',w/2,d/2,c),x,.05,z);},
@@ -587,7 +598,7 @@ function furnish(r){PUT=IGRP[r.b]||WORLD;const{x0,x1,z0,z1}=r,cx=(x0+x1)/2,cz=(z
   case'office2':add('desk',ca,1.5);add('computer',ca,1.5);add('chair',ca,.9,0x5a3a2a);add('shelf',ca-span/2+1.1,.3);add('plant',ca+span/2-.6,.5);add('cabinet',ca+span/2-.7,1.8);break;
   case'vault':{const[x,z]=P2(ca,1.2);F.safe(x,z,rotIn);F.safe(...P2(ca-1.6,1.2),rotIn);F.safe(...P2(ca+1.6,1.2),rotIn);break;}
   case'kitchen':add('stove',ca-1.5,.5);add('counter',ca+1,.45,3);add('cabinet',ca+span/2-.6,1.8);break;
-  case'wc':add('toilet',ca-.8,.45);add('sink',ca+.8,.3);break;
+  case'wc':if(r.id==='w_wc'){F.toilet(121.4,30.9,-Math.PI/2);F.sink(118.6,33.6,Math.PI);window.SHOWER=Object.assign(F.shower(121.1,33.1),{x:121.1,z:33.1,busy:null});break;}add('toilet',ca-.8,.45);add('sink',ca+.8,.3);break;
   case'evidence':for(let i=-1;i<=1;i++)add('shelf',ca+i*1.8,.3,0x6f7a80);add('locker',ca,2.2,0x556070);break;
   case'exam':add('examBed',ca-1,1.3);add('cabinet',ca+span/2-.6,.4);add('desk',ca+1.8,2);break;
   case'pharm':add('shelf',ca-1.6,.3,0xf0f0f0);add('shelf',ca+.2,.3,0xf0f0f0);add('counter',ca,2.6,3.6);break;
@@ -835,7 +846,7 @@ const CARS=[];
  const c=makeCar(col,kind);CARS.push(Object.assign(c,{segs,tot,d:t0*tot,v:0,vmax:kind==='bus'?7:kind==='police'?9:8.5,x:0,z:0,dx:0,dz:1,yaw:0,stopT:0,kind,police:kind==='police'}));});
 // parked cars (static)
 [[-10.5,15,0x9a2a2a,0],[-10.5,21,0x2a5a8a,0],[-36.5,15,0xd8d8d0,0],[38,-34,0x4a4a52,Math.PI/2],[44,-34,0x2a4a2a,Math.PI/2],[50,-34,0xc0a060,Math.PI/2],[84,-31,0xffffff,Math.PI/2,'police'],[78,45,0x7a2a2a,0],[-108,-10,0x5a5a5a,0,'truck'],[30,30,0x2a2a6a,0]].forEach(([x,z,col,ry,kind])=>{
- const c=makeCar(col,kind||'car');c.g.position.set(x,0,z);c.g.rotation.y=ry;const hl=c.L,hw=1.1;const ax=Math.abs(Math.sin(ry))>.5;solid(x-(ax?hl:hw),x+(ax?hl:hw),z-(ax?hw:hl),z+(ax?hw:hl),'car');});
+ const c=makeCar(col,kind||'car');c.kind=kind||'car';(window.PARKED_Q=window.PARKED_Q||[]).push(c);c.g.position.set(x,0,z);c.g.rotation.y=ry;const hl=c.L,hw=1.1;const ax=Math.abs(Math.sin(ry))>.5;solid(x-(ax?hl:hw),x+(ax?hl:hw),z-(ax?hw:hl),z+(ax?hw:hl),'car');});
 function carTick(dt,agents){CARS.forEach(c=>{// position on loop
  let d=c.d%c.tot,i=0;while(d>c.segs[i].len){d-=c.segs[i].len;i++;}const s=c.segs[i],t=d/s.len;const dx=(s.b[0]-s.a[0])/s.len,dz=(s.b[1]-s.a[1])/s.len;
  c.x=s.a[0]+(s.b[0]-s.a[0])*t;c.z=s.a[1]+(s.b[1]-s.a[1])*t;c.dx=dx;c.dz=dz;
@@ -894,7 +905,7 @@ const NPCS=[
   sched:{d:[[0,'w_sara'],[6.5,'w_kitchen'],[8,'whit'],[10,'mart'],[11,'w_kitchen'],[13,'whit'],[17.5,'w_kitchen'],[20,'whit'],[22,'w_sara']],
    sun:[[0,'w_sara'],[8,'w_kitchen'],[9.5,'church'],[11.5,'whit'],[17.5,'w_kitchen'],[20,'whit'],[22,'w_sara']]}},
  {id:'rossie',name:'Rossie Whitfield',age:19,fem:1,job:'Con gái Sara · sinh viên năm ba',look:{skin:0xf2d2bb,shirt:0x2b2b38,pants:0x34405a,hair:0x14110f,style:'pony'},
-  sched:{d:[[0,'w_rossie'],[7.5,'w_kitchen'],[8.3,'k_class1'],[12,'diner'],[13,'k_chem'],[15.5,'green'],[16.3,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie'],[22.5,'inn']],
+  sched:{d:[[0,'w_rossie'],[7,'w_wc'],[7.5,'w_kitchen'],[8.3,'k_class1'],[12,'diner'],[13,'k_chem'],[15.5,'green'],[16.3,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie'],[22.5,'inn']],
    sat:[[0,'inn'],[2,'w_rossie'],[12,'w_kitchen'],[13,'w_rossie'],[16,'mart'],[17,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie'],[22,'inn']],
    sun:[[0,'inn'],[2,'w_rossie'],[12,'w_kitchen'],[13,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie']]}},
  {id:'may',name:'May Dawson',age:42,fem:1,job:'Hàng xóm nhà bên',look:{skin:0xf2d0bb,shirt:0xc0392b,pants:0x3a3a3a,hair:0xe8cf8a,style:'bob'},
@@ -958,8 +969,8 @@ function makePerson(L){const g=new THREE.Group();scene.add(g);const prev=PUT;PUT
  if(L.badge)mesh(B(.1,.12,.02),C(0xd4af37,0x332200),.12,1.38,.16,g,false);
  if(L.collar)mesh(B(.1,.06,.02),C(0xffffff),0,1.52,.16,g,false);
  const blob=mesh(new THREE.CircleGeometry(.4,16),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.25}),0,.06,0,g,false);blob.rotation.x=-Math.PI/2;
- PUT=prev;return{g,lL,lR,aL,aR,ph:0};}
-function animate(rig,moving,dt,speed=1){if(moving)rig.ph+=dt*9*speed;else rig.ph*=.85;const s=Math.sin(rig.ph)*(moving?.6:0);
+ PUT=prev;return{g,lL,lR,aL,aR,ph:0,L};}
+function animate(rig,moving,dt,speed=1){if(rig.mx)return animGLB(rig,moving,dt,speed);if(moving)rig.ph+=dt*9*speed;else rig.ph*=.85;const s=Math.sin(rig.ph)*(moving?.6:0);
  rig.lL.rotation.x=s;rig.lR.rotation.x=-s;rig.aL.rotation.x=-s*.8;rig.aR.rotation.x=s*.8;}
 npc('natasha').look.badge=npc('lynda').look.badge=1;
 
@@ -1235,7 +1246,8 @@ I({x:121.4,z:22.7,label:'Nhìn ra cửa sổ',act(){const n=hour()>=19.5||hour()
 I({x:117.6,z:21.2,label:'Cất quần áo vào tủ',pri:1,hide:()=>S.c1!==1,act:unpack});
 I({x:116.8,z:24.2,label:'Xem kệ sách',act:()=>toast('Một cuốn sổ tay nấu ăn, một cuốn từ điển, và một cuốn tiểu thuyết trinh thám đã sờn gáy. Bên trong bìa có chữ ký: M. Whitfield.')});
 I({x:120.4,z:24.2,label:'Ngồi xuống bàn học',pri:1,hide:()=>S.c1!==5,act:deskScene});
-I({x:119.8,z:21.2,label:'Đi ngủ (tới 7:00 sáng, tự lưu)',hide:()=>S.c1<6,act:sleep});
+I({x:119.8,z:21.2,label:'Đi ngủ (tới 7:00 sáng, tự lưu)',hide:()=>S.c1<6,act:goToBed});
+I({x:119.9,z:32.6,label:'Đi tắm',hide:()=>S.c1<3||S.c1===4.5||!!ACT,act:takeShower});
 I({x:111.4,z:28,label:'Ảnh gia đình trên bàn',act(){toast('Sara, Rossie hồi nhỏ, và một người đàn ông cười rạng rỡ, tay khoác vai cả hai. Khung ảnh không có một hạt bụi.');if(!S.note.found.includes('Ảnh gia đình: Sara, Rossie và người chồng đã mất'))addNote('found','Ảnh gia đình: Sara, Rossie và người chồng đã mất');}});
 I({x:-31,z:22.6,label:'Chỉnh đồng hồ bếp nhanh 30 phút (nghịch)',hide:()=>S.c1!==3||S.flags.clockFast||S.flags.clockDone,act(){
  const ro=npc('rossie');const seen=!ro.away&&roomAt(ro.x,ro.z)===P.room;S.flags.clockFast=1;S.flags.clockDone=1;
@@ -1256,9 +1268,12 @@ I({x:-47,z:9.1,label:'Gõ cửa nhà Dawson',act(){const m=npc('may');if(m.away|
 I({x:-11,z:7.8,label:'Bảng giờ xe buýt',act:()=>toast('Tuyến Crestmoor Transit chạy vòng quanh thị trấn. Chuyến đi Portland: mỗi sáng 6:40.')});
 I({x:-52,z:-37.4,label:'Ngồi nghỉ ở vọng lâu (30 phút)',act(){passTime(30);toast('Mưa phùn lất phất. Bạn thấy đầu óc nhẹ hơn.');S.trouble=Math.max(0,S.trouble-20);}});
 
-function sleep(){const h=hour();if(h>=6&&h<20.5)return toast('Còn sớm. Bạn chỉ ngủ được sau 20:30.');
+function sleep(lateRo){const h=hour();if(h>=6&&h<20.5)return toast('Còn sớm. Bạn chỉ ngủ được sau 20:30.');
  const target=(h>=20.5?Math.floor(S.min/1440)+1:Math.floor(S.min/1440))*1440+7*60;passTime(target-S.min);S.trouble=0;
- scenePlay('Một đêm ở Crestmoor',['Mưa gõ đều lên mái hiên suốt đêm. Sáng ra, sương phủ trắng vườn sau.'],()=>save(true));}
+ const L=['Mưa gõ đều lên mái hiên suốt đêm. Sáng ra, sương phủ trắng vườn sau.'];
+ if(lateRo){L.unshift('Ba giờ sáng, cửa chính mở ra rất khẽ. Có người rón rén lên cầu thang, dừng lại trước cửa phòng Ethan một giây, rồi đi tiếp.');if(!S.flags.lateRo){S.flags.lateRo=1;addNote('found','Ba giờ sáng có người lén về nhà. Chắc là Rossie');}}
+ L.push('Bên kia hàng rào, rèm nhà Dawson đã mở từ trước khi trời sáng.');
+ scenePlay('Một đêm ở Crestmoor',L,()=>save(true));}
 function steal(amount){const w=watchers();if(w.length){S.trouble=Math.min(100,S.trouble+amount);emote(w[0],'!',5);toast(w[0].name+' thấy bạn đang lục lọi!');}}
 function passTime(min){S.min+=min;NPCS.forEach(n=>{n.ov=null;spawnNPC(n);});PEDS.forEach(pedSpawn);}
 function checkDeadline(){return false;}
@@ -1276,6 +1291,55 @@ function caught(by){S.trouble=0;S.rel[by.id]=(S.rel[by.id]||0)-5;
 /* ---------- romance: later chapters (awkward dialogue, fade to black) ---------- */
 const ROM={};
 const romOk=id=>!!ROM[id];
+
+/* =====================================================================
+   DAILY LIFE · shower and sleep, for Ethan and the Whitfields
+   ===================================================================== */
+let ACT=null;// player busy with an activity: movement locked
+const BEDS={ethan:[120.6,21.3],rossie:[120.6,26.3],sara:[120.4,36.6]};
+function bedSpot(id){const b=BEDS[id];return[b[0]-.95,b[1]];}
+function curtain(open){const S2=window.SHOWER;if(!S2)return;[S2.c1,S2.c2].forEach(c=>{c.scale.x=open?.18:1;});S2.c1.position.x=open?-.66:0;S2.c2.position.z=open?-.66:0;}
+function showerOn(who){const S2=window.SHOWER;if(!S2)return;S2.busy=who;S2.water.visible=true;curtain(false);}
+function showerOff(){const S2=window.SHOWER;if(!S2)return;S2.busy=null;S2.water.visible=false;curtain(true);S2.steam.forEach(s=>{s.m.visible=false;});}
+let showerAudio=null;
+function waterSound(on){try{if(on){const ac=new (window.AudioContext||window.webkitAudioContext)();const len=ac.sampleRate*2,bf=ac.createBuffer(1,len,ac.sampleRate),d=bf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*.5;
+  const src=ac.createBufferSource();src.buffer=bf;src.loop=true;const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=2400;f.Q.value=.6;const gn=ac.createGain();gn.gain.value=.18;src.connect(f).connect(gn).connect(ac.destination);src.start();showerAudio=ac;}
+ else if(showerAudio){showerAudio.close();showerAudio=null;}}catch(e){}}
+function lifeFx(dt){const S2=window.SHOWER;if(S2&&S2.busy){const p=S2.water.geometry.attributes.position,a=p.array,t=performance.now()/1000;
+  for(let i=0;i<S2.N;i++){const ph=(t*1.6+i*.137)%1,ang=i*2.4,r=.08+(i%5)*.07;const x=.3+Math.cos(ang)*r*(.3+ph),z=Math.sin(ang)*r*(.3+ph),y=2-ph*1.9;a.set([x,y,z,x,y-.22,z],i*6);}p.needsUpdate=true;
+  S2.steam.forEach(s=>{s.t+=dt*.18;if(s.t>1)s.t-=1;s.m.visible=true;s.m.position.set(Math.sin(s.t*9+s.m.id)*.4,1.2+s.t*1.6,Math.cos(s.t*7+s.m.id)*.4);s.m.scale.setScalar(.6+s.t*1.4);s.m.material.opacity=.32*Math.sin(s.t*Math.PI);});}
+ if(ZZZ.visible){ZZZ.material.rotation=Math.sin(performance.now()/600)*.15;ZZZ.position.y=1.3+((performance.now()/1400)%1)*.5;ZZZ.material.opacity=1-((performance.now()/1400)%1);}}
+const ZZZ=(()=>{const c=document.createElement('canvas');c.width=128;c.height=64;const g=c.getContext('2d');g.font='bold 44px sans-serif';g.fillStyle='#fff';g.strokeStyle='#2b1d3a';g.lineWidth=6;g.strokeText('Z z z',6,48);g.fillText('Z z z',6,48);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));s.scale.set(1.1,.55,1);s.visible=false;scene.add(s);return s;})();
+/* Whitfields keep their own night: in bed late, Rossie hogs the shower before class */
+function npcLife(n){const r=n.rig;if(n.id!=='sara'&&n.id!=='rossie'){r.pose=null;return;}
+ const h=hour(),idle=!n.path.length&&!n.final,mine=n.id==='sara'?'w_sara':'w_rossie';
+ if(n.goal===mine&&idle&&(h>=22.4||h<6.4)){const[x,z]=bedSpot(n.id);n.x=x;n.z=z;n.face=-Math.PI/2;r.pose='sleep';r.bedY=.62;return;}
+ if(n.id==='rossie'&&n.goal==='w_wc'&&idle&&!(window.SHOWER&&window.SHOWER.busy==='ethan')){const S2=window.SHOWER;n.x=S2.x+.1;n.z=S2.z;n.face=Math.PI/2;r.pose='shower';if(!S2.busy)showerOn('rossie');return;}
+ if(n.id==='rossie'&&window.SHOWER&&window.SHOWER.busy==='rossie')showerOff();
+ r.pose=null;}
+function takeShower(){if(ACT)return;const S2=window.SHOWER;
+ if(S2.busy==='rossie')return pick('Phòng tắm','Rèm đã kéo kín, nước chảy ào ào. Rossie đang hát một bài gì đó, lạc giọng hoàn toàn.',[
+  ['Gõ cửa: "Còn lâu không?"',()=>{rossie(-2);toast('Rossie: "BIẾN ĐI!" Tiếng hát dừng lại, rồi lại tiếp tục, to hơn.');}],['Thôi, đợi lát nữa']]);
+ ACT='shower';const back=[P.x,P.z];closeModal&&closeModal();
+ stairFade(()=>{tp(S2.x+.1,S2.z);P.face=Math.PI/2;P.rig.pose='shower';showerOn('ethan');waterSound(true);});
+ const h=hour(),ro=npc('rossie');const lines=['Ethan kéo rèm. Vòi sen kêu rè rè một lúc mới chịu ra nước.','Nước ấm dần. Hơi nước phủ mờ tấm gương trên bồn rửa.','Nước nóng được đúng bốn phút rồi chuyển sang lạnh buốt. Nhà Whitfield cũ thật.'];
+ const knock=h>=6.5&&h<8.3&&!ro.away&&weekday()===0&&S.flags.knockDay!==day();if(knock)lines.splice(2,0,'Cộc cộc! "Còn lâu không? Tôi trễ học rồi!" Rossie đập cửa phòng tắm.');
+ let i=0;const step=()=>{if(i<lines.length){toast(lines[i++]);setTimeout(step,1900);return;}
+  stairFade(()=>{showerOff();waterSound(false);P.rig.pose=null;tp(119.4,32.4);P.face=-Math.PI/2;ACT=null;passTime(15);S.flags.showerDay=day();
+   if(knock){S.flags.knockDay=day();rossie(-1);}if(!S.flags.hotWater){S.flags.hotWater=1;addNote('rules','Nước nóng chỉ đủ khoảng bốn phút. Tắm nhanh.');}
+   toast('Tắm xong. Thơm tho, tỉnh táo hơn hẳn.');});};
+ setTimeout(step,500);}
+function goToBed(){if(ACT)return;const h=hour();if(h>=6&&h<20.5)return toast('Còn sớm. Bạn chỉ ngủ được sau 20:30.');
+ ACT='sleep';const[x,z]=bedSpot('ethan');const h0=hemi.intensity,s0=sun.intensity;
+ stairFade(()=>{tp(x,z);P.face=-Math.PI/2;P.rig.pose='sleep';P.rig.bedY=.62;hemi.intensity=h0*.35;sun.intensity=s0*.25;ZZZ.visible=true;ZZZ.position.set(BEDS.ethan[0]+.6,1.3,BEDS.ethan[1]);});
+ const ro=npc('rossie'),lines=[S.flags.showerDay===day()?'Ethan nằm xuống, tóc vẫn còn hơi ẩm. Ga giường thơm mùi nước xả vải.':'Ethan nằm xuống, người vẫn còn mùi bụi đường. Lẽ ra nên tắm trước.',
+  'Mưa gõ đều lên mái hiên. Ở phòng bên, Rossie bật nhạc nhỏ, rồi tắt.','Dưới nhà, tiếng Sara nói chuyện điện thoại rất khẽ. Ethan chỉ nghe được hai chữ: "ngân hàng".'];
+ let i=0;const step=()=>{if(i<lines.length){toast(lines[i++]);setTimeout(step,2000);return;}
+  stairFade(()=>{ZZZ.visible=false;hemi.intensity=h0;sun.intensity=s0;P.rig.pose=null;tp(119.4,22.6);ACT=null;
+   const lateRo=weekday()===0;sleep(lateRo);});};
+ setTimeout(step,600);}
+curtain(true);
 
 /* =====================================================================
    CRESTMOOR · dialogue. dlg[id]() → [text, [[label, fn], ...]]
@@ -1348,7 +1412,7 @@ function unstuck(){for(let r=.5;r<12;r+=.5)for(let a=0;a<16;a++){const x=P.x+Mat
 function zoneNow(){if(P.room){const r=P.room;if(r.perm&&S.flags[r.perm])return'public';if(r.lobby&&BLD[r.b].home)return'public';return r.zone;}
  if(P.x<-103.4&&P.z>-38.5&&P.z<-11.5)return'secure';return'public';}
 function isAuth(n){if(n.police)return true;return !!(P.b&&BLD[P.b].auth&&BLD[P.b].auth.includes(n.id));}
-function canSee(n){if(n.away||!isAuth(n))return false;const nb=bldAt(n.x,n.z);if(nb!==P.b)return false;
+function canSee(n){if(n.away||!isAuth(n)||(n.rig.pose&&n.rig.pose!=='sit'))return false;const nb=bldAt(n.x,n.z);if(nb!==P.b)return false;
  if(P.b){const rn=roomAt(n.x,n.z);if(rn!==P.room)return false;}
  const dx=P.x-n.x,dz=P.z-n.z,d=Math.hypot(dx,dz),range=P.b?(P.crouch?6:11):(P.crouch?8:15);if(d>range)return false;
  if(d>1.6&&(dx*Math.sin(n.face)+dz*Math.cos(n.face))/d<.25)return false;
@@ -1414,7 +1478,7 @@ const npcLook=n=>Object.assign({fem:n.fem},n.look);
 function relStatus(v){return v<=-20?['Thù ghét','var(--danger)']:v<0?['Khó chịu','#d86a3a']:v<15?['Người quen','var(--dim)']:v<35?['Thân thiện','var(--ok)']:v<60?['Thân thiết','var(--accent)']:['Say nắng','var(--accent2)'];}
 
 /* ---------- talking ---------- */
-function talk(n){const[txt,opts]=dlg[n.id]();n.face=Math.atan2(P.x-n.x,P.z-n.z);n.talkT=6;const v=S.rel[n.id]||0,[st,col]=relStatus(v);
+function talk(n){if(n.rig.pose==='sleep')return toast(n.name+' đang ngủ say. Tốt nhất đừng đánh thức.');if(n.rig.pose==='shower')return toast(n.name+' đang tắm. Rèm kéo kín.');const[txt,opts]=dlg[n.id]();n.face=Math.atan2(P.x-n.x,P.z-n.z);n.talkT=6;const v=S.rel[n.id]||0,[st,col]=relStatus(v);
  openModal(`<div class="talk"><div id="tp"></div><div><div class="who">${n.job}</div><h2>${n.name} <small style="font:600 12px var(--mono);color:var(--dim)">${n.age} tuổi</small></h2>
  <div class="hearts"><span style="color:${col}">${st}</span><div class="hb"><i style="width:${clamp(v,0,100)}%"></i></div><span>${v}</span></div></div></div>
  <p style="margin-top:12px">${txt}</p><div class="opts" id="dopts"></div>`);
@@ -1540,7 +1604,7 @@ function nearest(){let best=null,bd=2.3;
  if(!best)PEDS.forEach(p=>{if(!p.active)return;const d=Math.hypot(p.x-P.x,p.z-P.z);if(d<1.6&&d<bd){bd=d;best={ped:p};}});
  return best;}
 const PED_LINES=['"Sinh viên mới hả? Mùa mưa ở đây kéo dài tới tháng Năm, mua ủng đi."','"Đừng gửi tiền ở Ngân hàng Pryce. Vào thì dễ, ra thì khó."','"Lại có xe đen đậu trước Red Lantern cả đêm. Năm nay nhiều hơn năm ngoái."','"Cà phê ở Diner ngon nhất Crestmoor. Cũng là duy nhất."','"Thị trưởng Keller lại hứa sửa đường Elm St. Năm thứ ba rồi."','"Nhà Whitfield à? Tội nghiệp Sara. Từ sau vụ tai nạn của Mark..."','"Trời tạnh rồi đấy, tranh thủ phơi đồ đi."','"Cậu thấy bà Dawson nhà bên chưa? Bà ấy thấy cậu rồi đấy."'];
-function interact(){if(paused)return;const nb=nearest();if(!nb)return;if(nb.npc)return talk(nb.npc);if(nb.o)return nb.o.act();if(nb.ped){toast(nb.ped.name+': '+PED_LINES[(PEDS.indexOf(nb.ped)+day())%PED_LINES.length]);}}
+function interact(){if(paused||ACT)return;const nb=nearest();if(!nb)return;if(nb.npc)return talk(nb.npc);if(nb.o)return nb.o.act();if(nb.ped){toast(nb.ped.name+': '+PED_LINES[(PEDS.indexOf(nb.ped)+day())%PED_LINES.length]);}}
 
 /* =====================================================================
    MAIN LOOP
@@ -1557,7 +1621,7 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
   let mx=(K.d||K.arrowright?1:0)-(K.a||K.arrowleft?1:0),mz=(K.s||K.arrowdown?1:0)-(K.w||K.arrowup?1:0);
   if(JOY.on){mx=JOY.x;mz=JOY.y;}
   const mag=Math.min(1,Math.hypot(mx,mz));
-  if(mag>.12){pMoving=true;const sp=(P.crouch?2.3:K.shift?7.5:5.2)*dt*(JOY.on?Math.max(.45,mag):1),l=Math.hypot(mx,mz),s=Math.sin(P.yaw),c=Math.cos(P.yaw);
+  if(mag>.12&&!ACT){pMoving=true;const sp=(P.crouch?2.3:K.shift?7.5:5.2)*dt*(JOY.on?Math.max(.45,mag):1),l=Math.hypot(mx,mz),s=Math.sin(P.yaw),c=Math.cos(P.yaw);
    const dx=(mx*c+mz*s)/l*sp,dz=(-mx*s+mz*c)/l*sp;if(!blocked(P.x+dx,P.z))P.x+=dx;if(!blocked(P.x,P.z+dz))P.z+=dz;P.face=Math.atan2(dx,dz);}
   P.b=bldAt(P.x,P.z);P.room=P.b?roomAt(P.x,P.z):null;
   NPCS.forEach(n=>stepNPC(n,dt));pedTick(dt);
@@ -1575,9 +1639,9 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
   if(day()!==S.lastDay){S.lastDay=day();}
  }
  // player rig
- const pg=P.rig.g;pg.position.set(P.x,0,P.z);let df=P.face-pg.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));pg.rotation.y+=df*.25;pg.scale.y=P.crouch?.72:1;animate(P.rig,pMoving,dt,P.crouch?.6:1.2);
+ const pg=P.rig.g;pg.position.set(P.x,0,P.z);let df=P.face-pg.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));pg.rotation.y+=df*.25;pg.scale.y=P.crouch&&!P.rig.mx?.72:1;P.rig.run=!!K.shift&&!P.crouch;animate(P.rig,pMoving,dt,P.crouch?.6:1.2);
  // NPC rigs
- NPCS.forEach(n=>{const g=n.rig.g;g.visible=!n.away;if(n.away)return;g.position.set(n.x,0,n.z);let d=n.face-g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));g.rotation.y+=d*.2;animate(n.rig,n.moving&&!paused,dt);});
+ lifeFx(dt);NPCS.forEach(n=>{const g=n.rig.g;g.visible=!n.away;if(n.away)return;npcLife(n);g.position.set(n.x,0,n.z);let d=n.face-g.rotation.y;d=Math.atan2(Math.sin(d),Math.cos(d));g.rotation.y+=d*.2;animate(n.rig,n.moving&&!paused,dt);});
  // camera
  let dyw=P.yaw-camYaw;dyw=Math.atan2(Math.sin(dyw),Math.cos(dyw));camYaw+=dyw*.15;const ind=!!P.b;
  const dist=(ind?9:13)*zoom,cp=ind?Math.max(camPitch,.85):camPitch;const hz=Math.cos(cp)*dist,hy=Math.sin(cp)*dist+1.2;
@@ -5617,6 +5681,89 @@ async function loadModels(){try{
  MODELS_READY=true;const n=applyModels();window.MODELS_SWAPPED=n;
 }catch(e){console.warn('Model library not loaded:',e&&e.message);}}
 loadModels();
+
+/* =====================================================================
+   CRESTMOOR · rigged people + vehicle models (assets/*.glb)
+   Loaded at runtime; until they arrive (or if fetch fails, e.g. file://) the blocky fallbacks stay.
+   People: Quaternius-style rigs with Walk/Run/Idle clips. Sleep and shower poses are built on top.
+   ===================================================================== */
+const AS={human:{},car:{},ready:false};
+const HUMAN_TARGET=1.85;
+function parallelTraverse(a,b,cb){cb(a,b);for(let i=0;i<a.children.length;i++)parallelTraverse(a.children[i],b.children[i],cb);}
+function skClone(src){const sL=new Map(),cL=new Map(),cl=src.clone();parallelTraverse(src,cl,(a,b)=>{sL.set(b,a);cL.set(a,b);});
+ cl.traverse(n=>{if(!n.isSkinnedMesh)return;const sm=sL.get(n);n.skeleton=sm.skeleton.clone();n.bindMatrix.copy(sm.bindMatrix);n.skeleton.bones=sm.skeleton.bones.map(b=>cL.get(b));n.bind(n.skeleton,n.bindMatrix);});return cl;}
+function glbLoad(url){return fetch(url).then(r=>{if(!r.ok)throw new Error(url);return r.arrayBuffer();}).then(buf=>new Promise((res,rej)=>new THREE.GLTFLoader().parse(buf,'',res,rej)));}
+
+/* which body each character wears */
+const BODY_OF={ethan:'main',sara:'woman2',rossie:'woman2',lucy:'woman2',lily:'woman2',natasha:'woman2',
+ may:'woman1',melania:'woman1',jeanie:'woman1',laura:'woman1',maria:'woman1',chloe:'woman1',lynda:'woman1',
+ dave:'suit',morgan:'suit',williams:'suit',bancroft:'suit',marcus:'suit',max:'man',evan:'man',paul:'man'};
+const CLIP_ALIAS={idle:['Idle','Man_Idle'],idle2:['Idle_Neutral','Man_Standing'],walk:['Walk','Man_Walk'],run:['Run','Man_Run'],wave:['Wave','Man_Clapping'],interact:['Interact','Man_Standing'],sit:['Man_Sitting']};
+function clipFor(clips,alias){for(const nm of CLIP_ALIAS[alias])for(const c of clips){const s=c.name.split('|').pop();if(s===nm)return c;}return null;}
+
+/* recolour clothes per character so the same body reads as different people */
+const MATC={};
+function dressed(model,key,L){model.traverse(o=>{if(!o.isMesh)return;const mats=Array.isArray(o.material)?o.material:[o.material];
+  const out=mats.map(m=>{const nm=m.name||'',mn=o.name||'';let col=null;
+   if(nm==='Skin')col=L.skin;else if(/Hair/.test(nm))col=L.hair;
+   else if(nm==='Shirt'||(/Body/.test(mn)&&!/^(White|Black|Eye|Eyes|Eyebrows|Gold)$/.test(nm)))col=L.shirt;
+   else if(nm==='Pants'||(/Legs/.test(mn)&&!/^(White|Black|Skin|Gold)$/.test(nm)))col=L.pants;
+   if(col==null)return m;const k=key+'|'+nm+'|'+col;if(!MATC[k]){MATC[k]=m.clone();MATC[k].color.setHex(col);}return MATC[k];});
+  o.material=Array.isArray(o.material)?out:out[0];o.castShadow=true;o.frustumCulled=false;});}
+
+function attachBody(rig,body){const src=AS.human[body];if(!src||rig.mx)return;
+ const m=skClone(src.scene);m.scale.setScalar(src.s);dressed(m,body+(rig.L.id||''),rig.L);
+ const piv=new THREE.Group();piv.add(m);rig.g.add(piv);
+ rig.g.children.forEach(c=>{if(c!==piv&&!(c.geometry&&c.geometry.type==='CircleGeometry'))c.visible=false;});
+ const mx=new THREE.AnimationMixer(m),acts={};for(const a in CLIP_ALIAS){const c=clipFor(src.clips,a);if(c)acts[a]=mx.clipAction(c);}
+ rig.mx=mx;rig.acts=acts;rig.piv=piv;rig.model=m;rig.cur=null;rig.idleT=rnd(3,9);playAct(rig,'idle',0);rig.mx.update(rnd(0,2));}
+function playAct(rig,name,fade=.25){if(!rig.acts[name])name='idle';if(rig.cur===name)return;const nx=rig.acts[name];if(!nx)return;
+ nx.reset();nx.enabled=true;nx.setEffectiveTimeScale(1);nx.setEffectiveWeight(1);nx.play();
+ if(rig.cur&&rig.acts[rig.cur]){if(fade>0)rig.acts[rig.cur].crossFadeTo(nx,fade,false);else rig.acts[rig.cur].stop();}rig.cur=name;}
+/* rig.pose: null | 'sleep' | 'shower' | 'sit' */
+function animGLB(rig,moving,dt,speed){const pv=rig.piv;
+ if(rig.pose==='sleep'){pv.rotation.set(-Math.PI/2,0,0);pv.position.set(0,rig.bedY||.62,0);playAct(rig,'idle2',.4);rig.acts[rig.cur]&&rig.acts[rig.cur].setEffectiveTimeScale(.12);}
+ else{pv.rotation.set(0,0,0);pv.position.set(0,0,0);
+  if(rig.pose==='sit'&&rig.acts.sit)playAct(rig,'sit');
+  else if(moving)playAct(rig,(rig.run||speed>1.5)?'run':'walk',.18);
+  else if(rig.pose==='shower'){playAct(rig,'idle2',.3);}
+  else{rig.idleT-=dt;if(rig.idleT<=0){rig.idleT=rnd(5,12);const r=Math.random();playAct(rig,r<.55?'idle':r<.85?'idle2':'wave',.4);}
+   else if(rig.cur==='walk'||rig.cur==='run'||rig.cur==='sit')playAct(rig,'idle',.2);
+   if(rig.cur==='wave'&&rig.acts.wave&&rig.acts.wave.time>rig.acts.wave.getClip().duration*.95)playAct(rig,'idle',.3);}
+  if(rig.acts[rig.cur])rig.acts[rig.cur].setEffectiveTimeScale(moving&&rig.cur==='walk'?Math.min(1.5,.85*speed):1);}
+ // skip skeleton work for people far from the player or hidden
+ if(!rig.g.visible||Math.hypot(rig.g.position.x-P.x,rig.g.position.z-P.z)>70)return;rig.mx.update(dt);}
+
+/* ---------- vehicles ---------- */
+const CAR_BODY={bus:'bus',police:'police',truck:['truck','pickup'],car:['taxi','convertible','pickup','ambulance','motorcycle','taxi','convertible']};
+let carPick=0;
+function carModel(name){const src=AS.car[name];if(!src)return null;const m=src.scene.clone(true);
+ const box=new THREE.Box3().setFromObject(m),sz=box.getSize(new THREE.Vector3());
+ const holder=new THREE.Group(),inner=new THREE.Group();holder.add(inner);inner.add(m);
+ if(sz.x>sz.z)inner.rotation.y=Math.PI/2;
+ const len=Math.max(sz.x,sz.z);m.position.set(-(box.min.x+box.max.x)/2,-box.min.y,-(box.min.z+box.max.z)/2);
+ if(src.flip)inner.rotation.y+=Math.PI;
+ holder.userData.len=len;m.traverse(o=>{if(o.isMesh){o.castShadow=true;}});return holder;}
+function dressCar(c,kind){if(c.glb)return;let nm=CAR_BODY[kind]||'taxi';if(Array.isArray(nm))nm=nm[(carPick++)%nm.length];
+ const h=carModel(nm);if(!h)return;const want=c.L*2*(nm==='motorcycle'?.55:1);h.scale.setScalar(want/h.userData.len);
+ c.g.children.forEach(o=>{o.visible=false;});if(c.bar)c.bar.forEach(b=>{b.visible=true;b.position.y=nm==='police'?1.32:b.position.y;});
+ c.g.add(h);c.glb=nm;}
+const PARKED=window.PARKED_Q||[];
+
+/* ---------- load everything ---------- */
+async function loadAssets(){if(!THREE.GLTFLoader||location.protocol==='file:')return;
+ const H=['main','woman1','woman2','suit','man'],Cc=['bus','police','truck','pickup','taxi','convertible','ambulance','motorcycle'];
+ await Promise.all(H.map(async k=>{try{const g=await glbLoad('assets/human/'+k+'.glb');const b=new THREE.Box3().setFromObject(g.scene);
+   AS.human[k]={scene:g.scene,clips:g.animations,s:HUMAN_TARGET/Math.max(.01,b.max.y-b.min.y)};}catch(e){console.warn('asset',k,e);}}));
+ await Promise.all(Cc.map(async k=>{try{const g=await glbLoad('assets/car/'+k+'.glb');AS.car[k]={scene:g.scene,flip:CAR_FLIP[k]};}catch(e){console.warn('asset',k,e);}}));
+ AS.ready=true;
+ P.rig.L.id='ethan';attachBody(P.rig,'main');
+ NPCS.forEach(n=>{n.rig.L.id=n.id;attachBody(n.rig,BODY_OF[n.id]||(n.fem?'woman1':'man'));});
+ PEDS.forEach((p,i)=>{p.rig.L.id='p'+i;attachBody(p.rig,p.rig.L.fem?((i>>1)%2?'woman1':'woman2'):(p.kind==='work'&&(i>>1)%2===0?'suit':'man'));});
+ CARS.forEach(c=>dressCar(c,c.kind));PARKED.forEach(c=>dressCar(c,c.kind));}
+const CAR_FLIP={};
+
+loadAssets();
 
 </script>
 <script src="pwa.js"></script>

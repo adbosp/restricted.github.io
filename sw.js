@@ -1,5 +1,5 @@
 /* Change the version whenever any shipped game asset changes. */
-const CACHE='ashgrove-mobile-v10';
+const CACHE='ashgrove-mobile-v11';
 const ROOT=new URL('./',self.location.href);
 const GAME=new URL('RestrictedAccess.html',ROOT).href;
 const ASSETS=['RestrictedAccess.html','index.html','vendor/three.r128.min.js','pwa.js','manifest.webmanifest','icons/icon-192.png','icons/icon-512.png','icons/maskable-512.png','icons/apple-touch-icon.png'];
@@ -13,6 +13,8 @@ self.addEventListener('fetch',event=>{
   // Prefer the newest deployed game on navigation; keep the cached release as offline fallback.
   event.respondWith((async()=>{const cache=await caches.open(CACHE);try{const fresh=await fetch(event.request,{cache:'no-store'});if(fresh&&fresh.ok)await cache.put(GAME,fresh.clone());return fresh;}catch{return(await cache.match(GAME))||Response.error();}})());return;
  }
+ // 3D models: cache on first use so the game keeps them offline
+ if(url.pathname.includes('/assets/')&&url.pathname.endsWith('.glb')){event.respondWith(caches.open(CACHE).then(async cache=>{const hit=await cache.match(url.href);if(hit)return hit;const r=await fetch(event.request);if(r&&r.ok)cache.put(url.href,r.clone());return r;}));return;}
  if(!ASSETS.some(path=>new URL(path,ROOT).pathname===url.pathname))return;
  event.respondWith(caches.open(CACHE).then(async cache=>(await cache.match(new Request(url.origin+url.pathname)))||fetch(event.request)));
 });

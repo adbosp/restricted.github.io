@@ -7,6 +7,8 @@ Crestmoor, Oregon. Ethan Cole (18 tuổi) thuê phòng trên tầng hai nhà Sar
 - Lối chơi kiểu "sổ ghi chú": quy tắc nhà, các mối quan hệ, những điều phát hiện (phím J). Trò nghịch nhỏ có hậu quả; lòng tin của Sara mất thì khó lấy lại.
 - Chỉ số: Sara (tin cậy), Rossie (thiện cảm), May (nghi ngờ). Lựa chọn cuối chương được lưu cho Chương 2.
 - Thị trấn: người đi đường đi theo lịch (đi làm, đi học, về nhà); nhân vật chính có lịch riêng, chỉ ra ngoài khi cần, khi đi học hoặc khi cốt truyện gọi.
+- Nhân vật và xe dùng model 3D trong `assets/` (có hoạt ảnh đi, chạy, đứng, vẫy tay; tư thế ngủ và tắm dựng thêm). Nguồn và giấy phép: `assets/CREDITS.md`. Mở bằng file:// thì game quay về hình khối cũ.
+- Sinh hoạt: đi tắm (phòng tắm tầng 2) và đi ngủ có cảnh riêng; Sara và Rossie ngủ trên giường ban đêm, Rossie tắm lúc 7 giờ sáng ngày thường.
 - Điều khiển máy tính: WASD (Shift chạy), kéo chuột xoay, lăn chuột zoom, E tương tác, C cúi, M bản đồ, J sổ ghi chú, I túi, L nhân vật, P ảnh, T chờ 30 phút, F5/F9 lưu/tải.
 - Điện thoại: cần điều khiển bên trái, nút E/C bên phải, kéo màn hình để xoay, chụm hai ngón để zoom.
 

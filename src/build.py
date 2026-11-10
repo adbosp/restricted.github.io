@@ -42,7 +42,7 @@ head = head.replace('<small>Nhiệm vụ</small>', '<small>Sổ ghi chú</small>
 assert '<script src="vendor/three.r128.min.js"></script>' in head
 
 core = R('20_core.js').replace('/*__TX__*/', R('_tx.js')).replace('/*__FURN__*/', R('_furn.js'))
-order = [core, R('30_world.js'), R('10_phototex.js'), R('40_people.js'), R('50_game.js'), R('55_dialog.js'), R('60_ui.js'), R('65_intro.js'), R('80_avatars.js'), R('70_start.js'), R('90_gltf.js'), R('91_models.js')]
+order = [core, R('30_world.js'), R('10_phototex.js'), R('40_people.js'), R('50_game.js'), R('55_dialog.js'), R('60_ui.js'), R('65_intro.js'), R('80_avatars.js'), R('70_start.js'), R('90_gltf.js'), R('91_models.js'), R('92_assets.js')]
 html = head + '\n<script>\n' + '\n'.join(order) + '\n</script>\n<script src="pwa.js"></script>\n</body></html>\n'
 out = os.path.join(D, '..')
 for name in ('index.html', 'RestrictedAccess.html'):

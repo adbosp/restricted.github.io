@@ -25,7 +25,7 @@ const NPCS=[
   sched:{d:[[0,'w_sara'],[6.5,'w_kitchen'],[8,'whit'],[10,'mart'],[11,'w_kitchen'],[13,'whit'],[17.5,'w_kitchen'],[20,'whit'],[22,'w_sara']],
    sun:[[0,'w_sara'],[8,'w_kitchen'],[9.5,'church'],[11.5,'whit'],[17.5,'w_kitchen'],[20,'whit'],[22,'w_sara']]}},
  {id:'rossie',name:'Rossie Whitfield',age:19,fem:1,job:'Con gái Sara · sinh viên năm ba',look:{skin:0xf2d2bb,shirt:0x2b2b38,pants:0x34405a,hair:0x14110f,style:'pony'},
-  sched:{d:[[0,'w_rossie'],[7.5,'w_kitchen'],[8.3,'k_class1'],[12,'diner'],[13,'k_chem'],[15.5,'green'],[16.3,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie'],[22.5,'inn']],
+  sched:{d:[[0,'w_rossie'],[7,'w_wc'],[7.5,'w_kitchen'],[8.3,'k_class1'],[12,'diner'],[13,'k_chem'],[15.5,'green'],[16.3,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie'],[22.5,'inn']],
    sat:[[0,'inn'],[2,'w_rossie'],[12,'w_kitchen'],[13,'w_rossie'],[16,'mart'],[17,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie'],[22,'inn']],
    sun:[[0,'inn'],[2,'w_rossie'],[12,'w_kitchen'],[13,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie']]}},
  {id:'may',name:'May Dawson',age:42,fem:1,job:'Hàng xóm nhà bên',look:{skin:0xf2d0bb,shirt:0xc0392b,pants:0x3a3a3a,hair:0xe8cf8a,style:'bob'},
@@ -89,8 +89,8 @@ function makePerson(L){const g=new THREE.Group();scene.add(g);const prev=PUT;PUT
  if(L.badge)mesh(B(.1,.12,.02),C(0xd4af37,0x332200),.12,1.38,.16,g,false);
  if(L.collar)mesh(B(.1,.06,.02),C(0xffffff),0,1.52,.16,g,false);
  const blob=mesh(new THREE.CircleGeometry(.4,16),new THREE.MeshBasicMaterial({color:0,transparent:true,opacity:.25}),0,.06,0,g,false);blob.rotation.x=-Math.PI/2;
- PUT=prev;return{g,lL,lR,aL,aR,ph:0};}
-function animate(rig,moving,dt,speed=1){if(moving)rig.ph+=dt*9*speed;else rig.ph*=.85;const s=Math.sin(rig.ph)*(moving?.6:0);
+ PUT=prev;return{g,lL,lR,aL,aR,ph:0,L};}
+function animate(rig,moving,dt,speed=1){if(rig.mx)return animGLB(rig,moving,dt,speed);if(moving)rig.ph+=dt*9*speed;else rig.ph*=.85;const s=Math.sin(rig.ph)*(moving?.6:0);
  rig.lL.rotation.x=s;rig.lR.rotation.x=-s;rig.aL.rotation.x=-s*.8;rig.aR.rotation.x=s*.8;}
 npc('natasha').look.badge=npc('lynda').look.badge=1;
 

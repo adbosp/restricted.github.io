@@ -260,7 +260,7 @@ function furnish(r){PUT=IGRP[r.b]||WORLD;const{x0,x1,z0,z1}=r,cx=(x0+x1)/2,cz=(z
   case'office2':add('desk',ca,1.5);add('computer',ca,1.5);add('chair',ca,.9,0x5a3a2a);add('shelf',ca-span/2+1.1,.3);add('plant',ca+span/2-.6,.5);add('cabinet',ca+span/2-.7,1.8);break;
   case'vault':{const[x,z]=P2(ca,1.2);F.safe(x,z,rotIn);F.safe(...P2(ca-1.6,1.2),rotIn);F.safe(...P2(ca+1.6,1.2),rotIn);break;}
   case'kitchen':add('stove',ca-1.5,.5);add('counter',ca+1,.45,3);add('cabinet',ca+span/2-.6,1.8);break;
-  case'wc':add('toilet',ca-.8,.45);add('sink',ca+.8,.3);break;
+  case'wc':if(r.id==='w_wc'){F.toilet(121.4,30.9,-Math.PI/2);F.sink(118.6,33.6,Math.PI);window.SHOWER=Object.assign(F.shower(121.1,33.1),{x:121.1,z:33.1,busy:null});break;}add('toilet',ca-.8,.45);add('sink',ca+.8,.3);break;
   case'evidence':for(let i=-1;i<=1;i++)add('shelf',ca+i*1.8,.3,0x6f7a80);add('locker',ca,2.2,0x556070);break;
   case'exam':add('examBed',ca-1,1.3);add('cabinet',ca+span/2-.6,.4);add('desk',ca+1.8,2);break;
   case'pharm':add('shelf',ca-1.6,.3,0xf0f0f0);add('shelf',ca+.2,.3,0xf0f0f0);add('counter',ca,2.6,3.6);break;
@@ -508,7 +508,7 @@ const CARS=[];
  const c=makeCar(col,kind);CARS.push(Object.assign(c,{segs,tot,d:t0*tot,v:0,vmax:kind==='bus'?7:kind==='police'?9:8.5,x:0,z:0,dx:0,dz:1,yaw:0,stopT:0,kind,police:kind==='police'}));});
 // parked cars (static)
 [[-10.5,15,0x9a2a2a,0],[-10.5,21,0x2a5a8a,0],[-36.5,15,0xd8d8d0,0],[38,-34,0x4a4a52,Math.PI/2],[44,-34,0x2a4a2a,Math.PI/2],[50,-34,0xc0a060,Math.PI/2],[84,-31,0xffffff,Math.PI/2,'police'],[78,45,0x7a2a2a,0],[-108,-10,0x5a5a5a,0,'truck'],[30,30,0x2a2a6a,0]].forEach(([x,z,col,ry,kind])=>{
- const c=makeCar(col,kind||'car');c.g.position.set(x,0,z);c.g.rotation.y=ry;const hl=c.L,hw=1.1;const ax=Math.abs(Math.sin(ry))>.5;solid(x-(ax?hl:hw),x+(ax?hl:hw),z-(ax?hw:hl),z+(ax?hw:hl),'car');});
+ const c=makeCar(col,kind||'car');c.kind=kind||'car';(window.PARKED_Q=window.PARKED_Q||[]).push(c);c.g.position.set(x,0,z);c.g.rotation.y=ry;const hl=c.L,hw=1.1;const ax=Math.abs(Math.sin(ry))>.5;solid(x-(ax?hl:hw),x+(ax?hl:hw),z-(ax?hw:hl),z+(ax?hw:hl),'car');});
 function carTick(dt,agents){CARS.forEach(c=>{// position on loop
  let d=c.d%c.tot,i=0;while(d>c.segs[i].len){d-=c.segs[i].len;i++;}const s=c.segs[i],t=d/s.len;const dx=(s.b[0]-s.a[0])/s.len,dz=(s.b[1]-s.a[1])/s.len;
  c.x=s.a[0]+(s.b[0]-s.a[0])*t;c.z=s.a[1]+(s.b[1]-s.a[1])*t;c.dx=dx;c.dz=dz;

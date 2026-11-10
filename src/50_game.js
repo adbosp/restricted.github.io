@@ -180,7 +180,8 @@ I({x:121.4,z:22.7,label:'Nhìn ra cửa sổ',act(){const n=hour()>=19.5||hour()
 I({x:117.6,z:21.2,label:'Cất quần áo vào tủ',pri:1,hide:()=>S.c1!==1,act:unpack});
 I({x:116.8,z:24.2,label:'Xem kệ sách',act:()=>toast('Một cuốn sổ tay nấu ăn, một cuốn từ điển, và một cuốn tiểu thuyết trinh thám đã sờn gáy. Bên trong bìa có chữ ký: M. Whitfield.')});
 I({x:120.4,z:24.2,label:'Ngồi xuống bàn học',pri:1,hide:()=>S.c1!==5,act:deskScene});
-I({x:119.8,z:21.2,label:'Đi ngủ (tới 7:00 sáng, tự lưu)',hide:()=>S.c1<6,act:sleep});
+I({x:119.8,z:21.2,label:'Đi ngủ (tới 7:00 sáng, tự lưu)',hide:()=>S.c1<6,act:goToBed});
+I({x:119.9,z:32.6,label:'Đi tắm',hide:()=>S.c1<3||S.c1===4.5||!!ACT,act:takeShower});
 I({x:111.4,z:28,label:'Ảnh gia đình trên bàn',act(){toast('Sara, Rossie hồi nhỏ, và một người đàn ông cười rạng rỡ, tay khoác vai cả hai. Khung ảnh không có một hạt bụi.');if(!S.note.found.includes('Ảnh gia đình: Sara, Rossie và người chồng đã mất'))addNote('found','Ảnh gia đình: Sara, Rossie và người chồng đã mất');}});
 I({x:-31,z:22.6,label:'Chỉnh đồng hồ bếp nhanh 30 phút (nghịch)',hide:()=>S.c1!==3||S.flags.clockFast||S.flags.clockDone,act(){
  const ro=npc('rossie');const seen=!ro.away&&roomAt(ro.x,ro.z)===P.room;S.flags.clockFast=1;S.flags.clockDone=1;
@@ -201,9 +202,12 @@ I({x:-47,z:9.1,label:'Gõ cửa nhà Dawson',act(){const m=npc('may');if(m.away|
 I({x:-11,z:7.8,label:'Bảng giờ xe buýt',act:()=>toast('Tuyến Crestmoor Transit chạy vòng quanh thị trấn. Chuyến đi Portland: mỗi sáng 6:40.')});
 I({x:-52,z:-37.4,label:'Ngồi nghỉ ở vọng lâu (30 phút)',act(){passTime(30);toast('Mưa phùn lất phất. Bạn thấy đầu óc nhẹ hơn.');S.trouble=Math.max(0,S.trouble-20);}});
 
-function sleep(){const h=hour();if(h>=6&&h<20.5)return toast('Còn sớm. Bạn chỉ ngủ được sau 20:30.');
+function sleep(lateRo){const h=hour();if(h>=6&&h<20.5)return toast('Còn sớm. Bạn chỉ ngủ được sau 20:30.');
  const target=(h>=20.5?Math.floor(S.min/1440)+1:Math.floor(S.min/1440))*1440+7*60;passTime(target-S.min);S.trouble=0;
- scenePlay('Một đêm ở Crestmoor',['Mưa gõ đều lên mái hiên suốt đêm. Sáng ra, sương phủ trắng vườn sau.'],()=>save(true));}
+ const L=['Mưa gõ đều lên mái hiên suốt đêm. Sáng ra, sương phủ trắng vườn sau.'];
+ if(lateRo){L.unshift('Ba giờ sáng, cửa chính mở ra rất khẽ. Có người rón rén lên cầu thang, dừng lại trước cửa phòng Ethan một giây, rồi đi tiếp.');if(!S.flags.lateRo){S.flags.lateRo=1;addNote('found','Ba giờ sáng có người lén về nhà. Chắc là Rossie');}}
+ L.push('Bên kia hàng rào, rèm nhà Dawson đã mở từ trước khi trời sáng.');
+ scenePlay('Một đêm ở Crestmoor',L,()=>save(true));}
 function steal(amount){const w=watchers();if(w.length){S.trouble=Math.min(100,S.trouble+amount);emote(w[0],'!',5);toast(w[0].name+' thấy bạn đang lục lọi!');}}
 function passTime(min){S.min+=min;NPCS.forEach(n=>{n.ov=null;spawnNPC(n);});PEDS.forEach(pedSpawn);}
 function checkDeadline(){return false;}
@@ -221,3 +225,52 @@ function caught(by){S.trouble=0;S.rel[by.id]=(S.rel[by.id]||0)-5;
 /* ---------- romance: later chapters (awkward dialogue, fade to black) ---------- */
 const ROM={};
 const romOk=id=>!!ROM[id];
+
+/* =====================================================================
+   DAILY LIFE · shower and sleep, for Ethan and the Whitfields
+   ===================================================================== */
+let ACT=null;// player busy with an activity: movement locked
+const BEDS={ethan:[120.6,21.3],rossie:[120.6,26.3],sara:[120.4,36.6]};
+function bedSpot(id){const b=BEDS[id];return[b[0]-.95,b[1]];}
+function curtain(open){const S2=window.SHOWER;if(!S2)return;[S2.c1,S2.c2].forEach(c=>{c.scale.x=open?.18:1;});S2.c1.position.x=open?-.66:0;S2.c2.position.z=open?-.66:0;}
+function showerOn(who){const S2=window.SHOWER;if(!S2)return;S2.busy=who;S2.water.visible=true;curtain(false);}
+function showerOff(){const S2=window.SHOWER;if(!S2)return;S2.busy=null;S2.water.visible=false;curtain(true);S2.steam.forEach(s=>{s.m.visible=false;});}
+let showerAudio=null;
+function waterSound(on){try{if(on){const ac=new (window.AudioContext||window.webkitAudioContext)();const len=ac.sampleRate*2,bf=ac.createBuffer(1,len,ac.sampleRate),d=bf.getChannelData(0);for(let i=0;i<len;i++)d[i]=(Math.random()*2-1)*.5;
+  const src=ac.createBufferSource();src.buffer=bf;src.loop=true;const f=ac.createBiquadFilter();f.type='bandpass';f.frequency.value=2400;f.Q.value=.6;const gn=ac.createGain();gn.gain.value=.18;src.connect(f).connect(gn).connect(ac.destination);src.start();showerAudio=ac;}
+ else if(showerAudio){showerAudio.close();showerAudio=null;}}catch(e){}}
+function lifeFx(dt){const S2=window.SHOWER;if(S2&&S2.busy){const p=S2.water.geometry.attributes.position,a=p.array,t=performance.now()/1000;
+  for(let i=0;i<S2.N;i++){const ph=(t*1.6+i*.137)%1,ang=i*2.4,r=.08+(i%5)*.07;const x=.3+Math.cos(ang)*r*(.3+ph),z=Math.sin(ang)*r*(.3+ph),y=2-ph*1.9;a.set([x,y,z,x,y-.22,z],i*6);}p.needsUpdate=true;
+  S2.steam.forEach(s=>{s.t+=dt*.18;if(s.t>1)s.t-=1;s.m.visible=true;s.m.position.set(Math.sin(s.t*9+s.m.id)*.4,1.2+s.t*1.6,Math.cos(s.t*7+s.m.id)*.4);s.m.scale.setScalar(.6+s.t*1.4);s.m.material.opacity=.32*Math.sin(s.t*Math.PI);});}
+ if(ZZZ.visible){ZZZ.material.rotation=Math.sin(performance.now()/600)*.15;ZZZ.position.y=1.3+((performance.now()/1400)%1)*.5;ZZZ.material.opacity=1-((performance.now()/1400)%1);}}
+const ZZZ=(()=>{const c=document.createElement('canvas');c.width=128;c.height=64;const g=c.getContext('2d');g.font='bold 44px sans-serif';g.fillStyle='#fff';g.strokeStyle='#2b1d3a';g.lineWidth=6;g.strokeText('Z z z',6,48);g.fillText('Z z z',6,48);
+ const s=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false}));s.scale.set(1.1,.55,1);s.visible=false;scene.add(s);return s;})();
+/* Whitfields keep their own night: in bed late, Rossie hogs the shower before class */
+function npcLife(n){const r=n.rig;if(n.id!=='sara'&&n.id!=='rossie'){r.pose=null;return;}
+ const h=hour(),idle=!n.path.length&&!n.final,mine=n.id==='sara'?'w_sara':'w_rossie';
+ if(n.goal===mine&&idle&&(h>=22.4||h<6.4)){const[x,z]=bedSpot(n.id);n.x=x;n.z=z;n.face=-Math.PI/2;r.pose='sleep';r.bedY=.62;return;}
+ if(n.id==='rossie'&&n.goal==='w_wc'&&idle&&!(window.SHOWER&&window.SHOWER.busy==='ethan')){const S2=window.SHOWER;n.x=S2.x+.1;n.z=S2.z;n.face=Math.PI/2;r.pose='shower';if(!S2.busy)showerOn('rossie');return;}
+ if(n.id==='rossie'&&window.SHOWER&&window.SHOWER.busy==='rossie')showerOff();
+ r.pose=null;}
+function takeShower(){if(ACT)return;const S2=window.SHOWER;
+ if(S2.busy==='rossie')return pick('Phòng tắm','Rèm đã kéo kín, nước chảy ào ào. Rossie đang hát một bài gì đó, lạc giọng hoàn toàn.',[
+  ['Gõ cửa: "Còn lâu không?"',()=>{rossie(-2);toast('Rossie: "BIẾN ĐI!" Tiếng hát dừng lại, rồi lại tiếp tục, to hơn.');}],['Thôi, đợi lát nữa']]);
+ ACT='shower';const back=[P.x,P.z];closeModal&&closeModal();
+ stairFade(()=>{tp(S2.x+.1,S2.z);P.face=Math.PI/2;P.rig.pose='shower';showerOn('ethan');waterSound(true);});
+ const h=hour(),ro=npc('rossie');const lines=['Ethan kéo rèm. Vòi sen kêu rè rè một lúc mới chịu ra nước.','Nước ấm dần. Hơi nước phủ mờ tấm gương trên bồn rửa.','Nước nóng được đúng bốn phút rồi chuyển sang lạnh buốt. Nhà Whitfield cũ thật.'];
+ const knock=h>=6.5&&h<8.3&&!ro.away&&weekday()===0&&S.flags.knockDay!==day();if(knock)lines.splice(2,0,'Cộc cộc! "Còn lâu không? Tôi trễ học rồi!" Rossie đập cửa phòng tắm.');
+ let i=0;const step=()=>{if(i<lines.length){toast(lines[i++]);setTimeout(step,1900);return;}
+  stairFade(()=>{showerOff();waterSound(false);P.rig.pose=null;tp(119.4,32.4);P.face=-Math.PI/2;ACT=null;passTime(15);S.flags.showerDay=day();
+   if(knock){S.flags.knockDay=day();rossie(-1);}if(!S.flags.hotWater){S.flags.hotWater=1;addNote('rules','Nước nóng chỉ đủ khoảng bốn phút. Tắm nhanh.');}
+   toast('Tắm xong. Thơm tho, tỉnh táo hơn hẳn.');});};
+ setTimeout(step,500);}
+function goToBed(){if(ACT)return;const h=hour();if(h>=6&&h<20.5)return toast('Còn sớm. Bạn chỉ ngủ được sau 20:30.');
+ ACT='sleep';const[x,z]=bedSpot('ethan');const h0=hemi.intensity,s0=sun.intensity;
+ stairFade(()=>{tp(x,z);P.face=-Math.PI/2;P.rig.pose='sleep';P.rig.bedY=.62;hemi.intensity=h0*.35;sun.intensity=s0*.25;ZZZ.visible=true;ZZZ.position.set(BEDS.ethan[0]+.6,1.3,BEDS.ethan[1]);});
+ const ro=npc('rossie'),lines=[S.flags.showerDay===day()?'Ethan nằm xuống, tóc vẫn còn hơi ẩm. Ga giường thơm mùi nước xả vải.':'Ethan nằm xuống, người vẫn còn mùi bụi đường. Lẽ ra nên tắm trước.',
+  'Mưa gõ đều lên mái hiên. Ở phòng bên, Rossie bật nhạc nhỏ, rồi tắt.','Dưới nhà, tiếng Sara nói chuyện điện thoại rất khẽ. Ethan chỉ nghe được hai chữ: "ngân hàng".'];
+ let i=0;const step=()=>{if(i<lines.length){toast(lines[i++]);setTimeout(step,2000);return;}
+  stairFade(()=>{ZZZ.visible=false;hemi.intensity=h0;sun.intensity=s0;P.rig.pose=null;tp(119.4,22.6);ACT=null;
+   const lateRo=weekday()===0;sleep(lateRo);});};
+ setTimeout(step,600);}
+curtain(true);

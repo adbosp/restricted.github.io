@@ -18,6 +18,17 @@ const F={
  rack(x,z,r){const g=grp(x,z,r);mesh(B(.8,2.2,1),C(0x1e2328),0,1.1,0,g);for(let y=.3;y<2.1;y+=.25)mesh(B(.04,.04,.02),C(0,Math.random()<.7?0x22ff66:0xff4433),-.25,y,.51,g,false);return g;},
  toilet(x,z,r){const g=grp(x,z,r);mesh(B(.45,.42,.6),C(0xf6f6f2),0,.21,.05,g);mesh(B(.5,.7,.2),C(0xf6f6f2),0,.55,-.28,g);mesh(B(.46,.04,.5),C(0xe8e8e2),0,.44,.08,g,false);return g;},
  sink(x,z,r){const g=grp(x,z,r);mesh(B(.6,.85,.45),C(0xe2ded6),0,.42,0,g);mesh(B(.5,.06,.36),C(0x9ab0c0),0,.87,.02,g,false);mesh(B(.6,.8,.04),C(0xcfe3ee,0x223344),0,1.55,-.2,g,false);return g;},
+ shower(x,z){const g=grp(x,z);mesh(B(1.6,.12,1.6),C(0xeef2f4),0,.06,0,g,false);
+  const gl=new THREE.MeshLambertMaterial({color:0xcfe6f0,transparent:true,opacity:.28});
+  mesh(B(1.6,2.1,.04),C(0xdfe8ec),0,1.1,.78,g,false);mesh(B(.04,2.1,1.6),C(0xdfe8ec),.78,1.1,0,g,false);
+  mesh(B(.05,.05,.5),C(0x9aa4aa),.55,2.1,0,g,false).rotation.y=Math.PI/2;const head=mesh(new THREE.CylinderGeometry(.14,.1,.06,12),C(0xb8c2c8),.3,2.05,0,g,false);
+  mesh(B(1.62,.03,.03),C(0x9aa4aa),0,2.2,-.8,g,false);mesh(B(.03,.03,1.62),C(0x9aa4aa),-.8,2.2,0,g,false);
+  const cm=new THREE.MeshLambertMaterial({color:0x8ec5d6,transparent:true,opacity:.92,side:THREE.DoubleSide});
+  const c1=mesh(new THREE.PlaneGeometry(1.6,1.95),cm,0,1.2,-.8,g,false),c2=mesh(new THREE.PlaneGeometry(1.6,1.95),cm,-.8,1.2,0,g,false);c2.rotation.y=Math.PI/2;
+  const wg=new THREE.BufferGeometry(),N=46,pos=new Float32Array(N*6);wg.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  const water=new THREE.LineSegments(wg,new THREE.LineBasicMaterial({color:0xd8f0ff,transparent:true,opacity:.7}));g.add(water);water.visible=false;
+  const steam=[];for(let i=0;i<8;i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.35,8,6),new THREE.MeshBasicMaterial({color:0xffffff,transparent:true,opacity:0,depthWrite:false}));s.visible=false;g.add(s);steam.push({m:s,t:i/8});}
+  return{g,c1,c2,water,steam,N,head};},
  washer(x,z,r){const g=grp(x,z,r);mesh(B(.9,1,.8),C(0xf5f5f5),0,.5,0,g);const d=mesh(new THREE.CylinderGeometry(.28,.28,.05,18),C(0x6a8ca8,0x0a1a2a),0,.5,.41,g,false);d.rotation.x=Math.PI/2;return g;},
  board(x,z,r){const g=grp(x,z,r);mesh(B(4,1.5,.08),mat('chalk',1,1),0,1.7,0,g,false);return g;},
  rug(x,z,w,d,c){plane(w,d,mat('carpet',w/2,d/2,c),x,.05,z);},
