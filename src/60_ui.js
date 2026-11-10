@@ -1,8 +1,8 @@
 /* =====================================================================
-   MAPLE HOLLOW · player, input, camera, UI, main loop
+   CRESTMOOR · player, input, camera, UI, main loop
    ===================================================================== */
-const LEO={skin:0xf0c49a,shirt:0xd94f3d,pants:0x34557a,hair:0x5a3a22,style:'spiky'};
-const P={rig:makePerson(LEO),x:S.pos[0],z:S.pos[1],yaw:0,face:Math.PI,crouch:false,b:null,room:null};
+const ETHAN={skin:0xf0c49a,shirt:0x3a4a5e,pants:0x34557a,hair:0x6a3a1e,style:'messy'};
+const P={rig:makePerson(ETHAN),x:S.pos[0],z:S.pos[1],yaw:Math.PI,face:0,crouch:false,b:null,room:null};
 function tp(x,z){P.x=x;P.z=z;}
 const K={};
 
@@ -67,8 +67,11 @@ modal.addEventListener('click',e=>{if(e.target===modal)closeModal();});
 function optButtons(o,opts){opts.forEach(([t,f,cls])=>{const b=document.createElement('button');b.textContent=t;if(cls)b.className=cls;b.onclick=()=>{closeModal();f&&f();};o.appendChild(b);});}
 function pick(title,text,opts){openModal(`<div class="who">${title}</div><p>${text}</p><div class="opts"></div>`);const o=mbox.querySelector('.opts');optButtons(o,opts);o.firstChild&&o.firstChild.focus();}
 let sq=[],sdone=null;
-function scenePlay(who,lines,done){if(!modal.hidden)closeModal();sq=lines.slice();sdone=done||null;document.getElementById('sw').textContent=who;sc.hidden=false;paused=true;nextLine();}
-function nextLine(){if(!sq.length){sc.hidden=true;paused=!modal.hidden;const d=sdone;sdone=null;d&&d();return;}document.getElementById('st').textContent=sq.shift();}
+function scenePlay(who,lines,done){if(!modal.hidden)closeModal();sq=lines.slice();sdone=done||null;sWho=who;document.getElementById('sw').textContent=who;sc.hidden=false;paused=true;nextLine();}
+let sWho='';
+function nextLine(){if(!sq.length){sc.hidden=true;paused=!modal.hidden;const d=sdone;sdone=null;d&&d();return;}const ln=sq.shift(),pv=document.getElementById('spv'),sw=document.getElementById('sw');
+ if(Array.isArray(ln)){const[id,t]=ln;const n=npc(id);sw.textContent=n?n.name:'Ethan';pv.hidden=false;const g=pv.getContext('2d');g.clearRect(0,0,144,144);g.drawImage(id==='ethan'?portrait(ETHAN,144,'ethan'):portrait(npcLook(n),144,id),0,0,144,144);document.getElementById('st').textContent=t;}
+ else{sw.textContent=sWho;pv.hidden=true;document.getElementById('st').textContent=ln;}}
 document.getElementById('sn').onclick=nextLine;
 const toastsEl=document.getElementById('toasts');
 function toast(t){const d=document.createElement('div');d.className='toast';d.textContent=t;toastsEl.appendChild(d);setTimeout(()=>d.remove(),4500);while(toastsEl.children.length>3)toastsEl.firstChild.remove();}
@@ -99,37 +102,38 @@ function talk(n){const[txt,opts]=dlg[n.id]();n.face=Math.atan2(P.x-n.x,P.z-n.z);
  extra.push(['Xem hồ sơ nhân vật',()=>library(n.id),'alt']);
  optButtons(o,opts.slice(0,-1).concat(extra).concat([opts[opts.length-1]]));o.firstChild&&o.firstChild.focus();}
 function giftMenu(n,gifts){pick('Tặng quà cho '+n.name,'Chọn món quà:',gifts.map(g=>[ITEMS[g].n,()=>{const[lk,dl]=LIKES[n.id]||[[],[]];take(g);S.giftDay[n.id]=day();let d=3,msg='nhận quà, lịch sự cảm ơn.';
- if(g==='pie'&&n.id==='pastor'){give('pie');return dlgGivePie();}
  if(lk.includes(g)){d=10;msg='mắt sáng lên. Đúng thứ họ thích!';}else if(dl.includes(g)){d=-6;msg='nhăn mặt. Họ không thích thứ này.';}R(n.id,d);emote(n,d>0?'♥':'!',4);toast(`${n.name} ${msg} Thiện cảm ${d>0?'+':''}${d}`);}]).concat([['Thôi']]));}
-function dlgGivePie(){const[t,o]=dlg.pastor();const f=o.find(x=>x[0].startsWith('Đưa bánh'));f&&f[1]();}
 
 /* ---------- character codex ---------- */
 const CODEX={
- celine:'Dì của Leo, góa chồng, sống ở số 12 Main St suốt ba mươi năm. Bánh táo của Dì nổi tiếng cả hạt. Ngân hàng vừa gửi thông báo siết nợ.',
- richard:'Thị trưởng ba nhiệm kỳ, nụ cười luôn bật sẵn. Đứng sau dự án Hollow Commons: san phẳng Town Green và nhà thờ để xây trung tâm thương mại.',
- marlowe:'Chủ tịch Vance Development, ở Maple Inn trong lúc "khảo sát". Ăn trưa với Thị trưởng mỗi ngày ở quán Diner.',
- simon:'Cảnh sát trẻ nhất thị trấn, thuộc lòng nội quy, mê donut. Tuần tra Main St buổi chiều và cả đêm.',
- kim:'Trung sĩ cảnh sát, mười hai năm ở Maple Hollow. Thẳng thắn, và đang nghi ngờ Tòa thị chính.',
- sam:'Thư ký Tòa thị chính. Ăn trưa ở công viên 12:00-13:00, thường quên khóa văn phòng Thị trưởng.',
- dex:'Hàng xóm nhà bên, làm ở trạm xăng. Bị Simon tịch thu điện thoại vì quay phim trong quán Diner.',
- bella:'Phục vụ quán Hollow Diner. Rót cà phê cho Thị trưởng và bà Vance mỗi trưa.',
- mia:'Kiểm lâm của Town Green. Chạy quanh hồ lúc 6 giờ sáng, yêu lũ vịt hơn yêu người.',
- linh:'MC kênh WMHV-TV. Đang điều tra Hollow Commons và cần người giúp từ bên trong thị trấn.',
- sloane:'Giáo viên Lịch sử ở cao đẳng, chuyên gia về năm 1791. Đã tìm bản chứng thư gốc suốt hai mươi năm.',
- lan:'Giáo viên Văn học, người Mỹ gốc Việt. Mùa thu là mùa cô viết nhiều nhất.',
- sofia:'Bác sĩ duy nhất của thị trấn. Thẳng tính, hài hước, thích đi hái táo.',
- mai:'Chủ tiệm hoa Petal & Stem. Biết bí mật của cả thị trấn qua những bó hoa người ta đặt.',
- bennett:'Giám đốc Ngân hàng Maple Hollow. Bị Thị trưởng ép ký các lệnh siết nợ.',
- jess:'Chủ tiệm kim khí. Bán kìm cắt xích và thuốc nhuộm hồ, không hỏi lý do.',
- pastor:'Mục sư nhà thờ Thánh Giles. Giữ chìa khóa kho lưu trữ, nơi có chứng thư năm 1791.'};
+ sara:'Góa phụ 40 tuổi, chủ căn nhà gỗ trắng số 14. Cứng rắn nhưng mệt mỏi. Chồng bà, Mark, chết trong một vụ tai nạn xe hơi mà cảnh sát chưa bao giờ làm rõ.',
+ rossie:'Con gái Sara, 19 tuổi, sinh viên năm ba. Cọc cằn, lười biếng, thích đi chơi đêm. Có vẻ biết về tình hình tài chính nhà mình nhiều hơn mẹ cô tưởng.',
+ may:'Hàng xóm nhà bên, 42 tuổi. Ghét Ethan từ ngày đầu, hay mách Sara. Chồng bà, Hert, thường đi công tác xa.',
+ dave:'Thị trưởng Crestmoor, 58 tuổi. Nụ cười tranh cử luôn bật sẵn. Người ta đồn ông có quan hệ với những người không nên có quan hệ.',
+ melania:'Vợ Thị trưởng, 55 tuổi. Quyền lực, thích kiểm soát. Nhiều người nói bà mới là người quyết định trong nhà Keller.',
+ jeanie:'MC kênh tin tức KCRM-TV, 37 tuổi. Cá tính, hay phá luật, chuyên đào bới bê bối của trường đại học.',
+ bancroft:'Hiệu trưởng Đại học Crestmoor, 44 tuổi. Khó tính, thích kiểm soát, nhưng công bằng. Ghét Jeanie Blaine hơn bất kỳ ai.',
+ laura:'Giáo viên Hóa học, 35 tuổi. Cấp dưới trung thành của Hiệu trưởng Bancroft, sống theo quy tắc.',
+ maria:'Nữ doanh nhân, 39 tuổi, cổ đông lớn nhất của trường. Lịch sự nhưng khó đoán. Con gái bà, Diana, đang đi du lịch dài hạn.',
+ chloe:'Bạn thân của Sara, 42 tuổi. Liên tục khuyên Sara đuổi người thuê nhà đi.',
+ morgan:'CEO Ngân hàng Pryce, 62 tuổi. Gần như kiểm soát cả thị trấn qua những khoản vay.',
+ lucy:'Bạn cùng lớp, 19 tuổi. Dễ thương, hòa đồng, nhưng luôn giữ một khoảng cách.',
+ lily:'Bạn cùng lớp, 18 tuổi. Hay coi thường và trêu chọc người mới.',
+ max:'Bạn cùng lớp, 19 tuổi. Cao to, thích bắt nạt, luôn đi cùng Lily.',
+ evan:'Bạn cùng lớp, 18 tuổi. Tỏ ra tốt bụng, lúc nào cũng muốn giúp đỡ. Hỏi rất nhiều câu.',
+ natasha:'Cảnh sát tuần tra, 27 tuổi. Cá tính, cứng rắn, không ngại va chạm.',
+ lynda:'Đại úy cảnh sát, 38 tuổi. Đang điều tra băng Red Mafia. Hơi chậm, nhưng kiên trì.',
+ marcus:'Thám tử tự do, 25 tuổi. Không thuộc phe nào. Có thể là đồng minh, cũng có thể là mối nguy.',
+ paul:'Trung gian chợ đen, 25 tuổi. Kiếm được hầu như mọi thứ, với giá không rẻ.',
+ williams:'Người đàn ông mặc đồ đen ở quán Red Lantern. Ai trong thị trấn cũng biết tên, nhưng không ai muốn nói to.'};
 function library(sel){const list=NPCS;sel=sel||library.last||list[0].id;library.last=sel;const n=npc(sel),v=S.rel[n.id]||0,[st,col]=relStatus(v),[lk,dl]=LIKES[n.id]||[[],[]];
  const chip=(x,cls)=>`<span class="chip ${cls||''}">${ITEMS[x]?ITEMS[x].n:x}</span>`;const placeName=p=>p==='away'?'Ngoài thị trấn':p==='@patrol'?'Tuần tra Main St':OUT[p]?OUT[p].name:BLD[p]?BLD[p].name:RM[p]?RM[p].name:p;
- const sched=schedRows(n).map(e=>`${hm(e[0])} ${placeName(e[1])}`).join(' → ');const w=WIT.find(x=>x[0]===n.id);
- openModal(`<div class="who">Nhân vật · ${list.length} người ở Maple Hollow</div><div class="lib"><div class="list" id="ll"></div>
+ const sched=schedRows(n).map(e=>`${hm(e[0])} ${placeName(e[1])}`).join(' → ');const w=null;
+ openModal(`<div class="who">Nhân vật · ${list.length} người ở Crestmoor</div><div class="lib"><div class="list" id="ll"></div>
  <div class="page"><div class="head"><div id="lp"></div><div><h2>${n.name}</h2><div style="color:var(--dim)">${n.job} · ${n.age} tuổi</div>
   <div class="sec"><span class="status" style="background:${col}">${st}</span>${w?` <span class="chip ${w[2]()?'':'lock'}">${w[2]()?'Sẽ làm chứng':'Chưa sẵn sàng làm chứng'}</span>`:''}${romOk(n.id)?' <span class="chip" style="background:#ffd6e8;color:#8a1d4a">♥ có thể hẹn hò</span>':''}</div>
   <div class="hearts" style="margin-top:8px"><span>Thiện cảm</span><div class="hb"><i style="width:${clamp(v,0,100)}%"></i></div><span>${v}/100</span></div></div></div>
- <div class="sec"><h4>Câu chuyện</h4><div>${CODEX[n.id]||''}</div></div>
+ <div class="sec"><h4>Câu chuyện</h4><div>${CODEX[n.id]||''}</div></div>${S.note.people[n.id]?`<div class="sec"><h4>Ethan ghi chú</h4><div>${S.note.people[n.id]}</div></div>`:''}
  <div class="sec"><h4>Thích</h4><div class="chips">${lk.map(x=>chip(x)).join('')||'<span class="chip lock">Không rõ</span>'}</div></div>
  <div class="sec"><h4>Không thích</h4><div class="chips">${dl.map(x=>chip(x,'no')).join('')||'<span class="chip lock">Không rõ</span>'}</div></div>
  <div class="sec"><h4>Lịch hôm nay</h4><div style="color:var(--dim);font-size:12px">${sched}</div></div>
@@ -141,37 +145,30 @@ function library(sel){const list=NPCS;sel=sel||library.last||list[0].id;library.
 
 /* ---------- pictures ---------- */
 const PICS=[
- {f:()=>S.flags.metCeline,t:'Về nhà',d:'Ngày đầu ở Maple Hollow, bánh táo và một lá thư úp mặt.',bg:['#f2b33a','#d9541e'],who:['celine']},
- {f:()=>S.flags.metLinh,t:'Đài WMHV-TV',d:'Linh và kế hoạch cho Chủ nhật.',bg:['#c0392b','#3a1a2a'],who:['linh']},
- {f:()=>S.flags.sawDeal,t:'Bàn số 4, quán Diner',d:'Một phong bì dày đổi chủ.',bg:['#d6eef0','#d84a3a'],who:['richard','marlowe']},
- {f:()=>S.flags.pondPhoto,t:'Thị trưởng và hồ nước hồng',d:'Trang nhất tờ Hollow Gazette.',bg:['#ffb3d9','#ff8fc8'],who:['richard','dex']},
- {f:()=>S.flags.dexAlly,t:'Điện thoại về tay chủ',d:'Dex ôm điện thoại như ôm mèo con.',bg:['#2a9d8f','#14404a'],who:['dex']},
- {f:()=>S.flags.pastorAlly,t:'Bánh cho buổi bán bánh',d:'Một chiếc chìa khóa đồng đổi lấy một chiếc bánh táo.',bg:['#f6f2ea','#8a6a4a'],who:['pastor']},
- ...Object.keys(ROM).map(id=>({f:()=>S.flags['dated_'+id],t:'Hẹn hò',d:'Một buổi tối ở Maple Hollow.',bg:['#ff8cc0','#3a1a3a'],who:[id]})),
- {f:()=>S.flags.ending==='good',t:'Ngày Hội Thành Lập',d:'Chuông nhà thờ vang khắp thị trấn.',bg:['#ffd27a','#c0392b'],who:['linh','kim','celine']}];
+ {f:()=>S.c1>=1,t:'Ngày dọn vào',d:'Căn nhà gỗ trắng số 14 và một người phụ nữ cầm khăn lau bát.',bg:['#c9b48e','#6a5a44'],who:['sara']},
+ {f:()=>S.c1>=3,t:'Thằng thuê phòng',d:'Rossie ngồi trên quầy bếp, nhai kẹo cao su.',bg:['#3a3a4a','#14110f'],who:['rossie']},
+ {f:()=>S.c1>=3,t:'Áo khoác đỏ bên hàng rào',d:'May Dawson không quên chuyện gì cả.',bg:['#c0392b','#3a1a1a'],who:['may']},
+ {f:()=>S.c1>=4,t:'Bữa tối im lặng',d:'Một chiếc điện thoại úp xuống bàn, rung hai lần.',bg:['#f2b33a','#5a3a22'],who:['sara','rossie']},
+ {f:()=>S.c1>=6,t:'Bóng người sau rèm',d:'Ngọn đèn vàng ở tầng hai nhà bên.',bg:['#1a2433','#0a0d14'],who:['may']}];
 function picCanvas(p,w=400){const c=document.createElement('canvas');c.width=w;c.height=w*.625;const g=c.getContext('2d');const gr=g.createLinearGradient(0,0,w,c.height);gr.addColorStop(0,p.bg[0]);gr.addColorStop(1,p.bg[1]);g.fillStyle=gr;g.fillRect(0,0,w,c.height);
  p.who.forEach((id,i)=>{const n=npc(id);const s=w*.36;const x=w/2-(p.who.length*s*.8)/2+i*s*.8;g.save();g.beginPath();g.arc(x+s/2,c.height*.52,s/2,0,7);g.clip();g.drawImage(portrait(npcLook(n),Math.round(s),id),x,c.height*.52-s/2,s,s);g.restore();
   g.strokeStyle='#2b1d3a';g.lineWidth=4;g.beginPath();g.arc(x+s/2,c.height*.52,s/2,0,7);g.stroke();});return c;}
 function pictures(){const got=PICS.filter(p=>p.f());openModal(`<div class="who">Album · ${got.length}/${PICS.length} ảnh</div><h2>Ảnh kỷ niệm</h2><div class="gal" id="gal"></div><div class="opts"><button id="xc">Đóng</button></div>`);mbox.classList.add('wide');
- const gal=mbox.querySelector('#gal');if(!got.length)gal.innerHTML='<p>Chưa có ảnh nào. Cứ sống ở Maple Hollow, rồi sẽ có.</p>';
+ const gal=mbox.querySelector('#gal');if(!got.length)gal.innerHTML='<p>Chưa có ảnh nào. Cứ sống ở Crestmoor, rồi sẽ có.</p>';
  got.forEach(p=>{const b=document.createElement('button');b.className='pic';b.appendChild(picCanvas(p));const d=document.createElement('div');d.innerHTML=`<b>${p.t}</b><small>${p.d}</small>`;b.appendChild(d);gal.appendChild(b);});
  document.getElementById('xc').onclick=closeModal;}
 
 /* ---------- inventory, quests ---------- */
 function inv(){if(!modal.hidden)return closeModal();const ks=Object.keys(S.inv);
- openModal(`<div class="who">Túi đồ · ${S.cash} đô · biên bản ${S.records}/3</div><h2>Trong túi</h2>`+(ks.length?ks.map(k=>`<div class="item"><div><svg class="i ico"><use href="#i-${ITEMS[k].ico}"/></svg><div><b>${ITEMS[k].n}</b>${S.inv[k]>1?' ×'+S.inv[k]:''}${ITEMS[k].ev?' <span class="chip">BẰNG CHỨNG</span>':''}<small>${ITEMS[k].d}</small></div></div></div>`).join(''):'<p>Trống trơn.</p>')+'<div class="opts"><button id="xc">Đóng</button></div>');
+ openModal(`<div class="who">Túi đồ · ${S.cash} đô · biên bản cảnh sát ${S.records}/3</div><h2>Trong túi</h2>`+(ks.length?ks.map(k=>`<div class="item"><div><svg class="i ico"><use href="#i-${ITEMS[k].ico}"/></svg><div><b>${ITEMS[k].n}</b>${S.inv[k]>1?' ×'+S.inv[k]:''}<small>${ITEMS[k].d}</small></div></div></div>`).join(''):'<p>Trống trơn.</p>')+'<div class="opts"><button id="xc">Đóng</button></div>');
  document.getElementById('xc').onclick=closeModal;}
-function questLog(){if(!modal.hidden&&!sc.hidden)return;const st=['','Đang làm','Hoàn thành'];const ev=EVID.map(k=>`<span class="chip ${has(k)?'':'lock'}">${ITEMS[k].n}</span>`).join('');
- const w=witnesses();
- openModal('<div class="who">Nhật ký</div><h2>Nhiệm vụ</h2>'+Object.entries(QUESTS).filter(([k])=>S.q[k]).map(([k,q])=>`<div class="item"><div><div><b>${q.t}</b><small>${q.o()}</small></div></div><span class="status" style="background:${S.q[k]===2?'var(--ok)':'var(--accent)'}">${st[S.q[k]]}</span></div>`).join('')+
-  (S.q.proof?`<div class="sec"><h4>Bằng chứng ${evCount()}/3 (có 5 loại)</h4><div class="chips">${ev}</div></div><div class="sec"><h4>Nhân chứng ${w.length}/3</h4><div class="chips">${w.map(x=>`<span class="chip">${x[1]}</span>`).join('')||'<span class="chip lock">Chưa ai. Kết thân (thiện cảm 40) hoặc giúp đỡ người dân.</span>'}</div></div>`:'')+
-  '<div class="opts"><button id="xc">Đóng</button></div>');document.getElementById('xc').onclick=closeModal;}
-function questText(){if(S.flags.ending)return'<b>Hết truyện</b><p>Cảm ơn bạn đã chơi.</p>';
- if(S.q.home===1)return`<b>${QUESTS.home.t}</b><p>${QUESTS.home.o()}</p>`;if(S.q.linh===1)return`<b>${QUESTS.linh.t}</b><p>${QUESTS.linh.o()}</p>`;
- if(hearingTime())return'<b>PHIÊN ĐIỀU TRẦN ĐANG DIỄN RA</b><p>Tới Phòng họp Hội đồng ở Tòa thị chính và lên bục phát biểu.</p>';
- const next=['phone','deed','ledger','report','loan'].filter(k=>S.q[k]===1).slice(0,1).map(k=>`<p><b style="font-size:13px">${QUESTS[k].t}:</b> ${QUESTS[k].o()}</p>`).join('');
- return`<b>${QUESTS.proof.t}</b><p>${QUESTS.proof.o()}</p>${next}`;}
-function waitHalf(){if(!modal.hidden||!sc.hidden)return;if(S.flags.ending)return;passTime(30);toast('Bạn chờ 30 phút.');checkDeadline();}
+function questLog(){if(!sc.hidden)return;if(!modal.hidden)return closeModal();const c=C1[Math.floor(S.c1)]||C1[6];
+ const li=a=>a.length?a.map(x=>`<div class="item"><div><div><small style="font-size:13px;color:var(--ink)">• ${x}</small></div></div></div>`).join(''):'<p style="color:var(--dim)">Chưa có gì.</p>';
+ const ppl=Object.entries(S.note.people).map(([id,t])=>`<div class="item"><div><div><b>${npc(id).name}</b><small>${t}</small></div></div><span class="status" style="background:var(--accent)">${id==='sara'?'Tin cậy: '+trustLabel():id==='rossie'?'Thiện cảm: '+rossieLabel():id==='may'?'Nghi ngờ: '+mayLabel():relStatus(S.rel[id]||0)[0]}</span></div>`).join('');
+ openModal(`<div class="who">Sổ ghi chú của Ethan</div><h2>${c.t}</h2><p style="color:var(--dim)">${c.o()}</p>
+ <div class="sec"><h4>Quy tắc nhà</h4>${li(S.note.rules)}</div><div class="sec"><h4>Các mối quan hệ</h4>${ppl||'<p style="color:var(--dim)">Chưa quen ai.</p>'}</div>
+ <div class="sec"><h4>Những điều đã phát hiện</h4>${li(S.note.found)}</div><div class="opts"><button id="xc">Đóng</button></div>`);mbox.classList.add('wide');document.getElementById('xc').onclick=closeModal;}
+function waitHalf(){if(!modal.hidden||!sc.hidden)return;if(S.flags.ending)return;passTime(30);toast('Bạn chờ 30 phút.');}
 
 /* ---------- map ---------- */
 const MAPB={x0:-128,x1:128,z0:-82,z1:82};
@@ -183,39 +180,40 @@ function drawMap(g,W,H,big,cx,cz,span){g.save();g.fillStyle='#3e6a34';g.fillRect
  g.fillStyle='#4a4c50';ROADS.forEach(r=>{if(r.ax==='x')g.fillRect(X(MAPB.x0),Z(r.c-RW),(MAPB.x1-MAPB.x0)*s,RW*2*s);else g.fillRect(X(r.c-RW),Z(MAPB.z0),RW*2*s,(MAPB.z1-MAPB.z0)*s);});
  g.fillStyle=S.flags.pondPink?'#ff8fc8':'#3f8fb0';g.beginPath();g.arc(X(POND.x),Z(POND.z),POND.r*s,0,7);g.fill();
  const ZC={public:'#e8dcc0',semi:'#e6c27a',staff:'#e09a5a',secure:'#d0584e'};
- Object.values(BLD).forEach(b=>{g.fillStyle=b.closed?'#9a8f84':'#c9bfae';g.fillRect(X(b.x0),Z(b.z0),(b.x1-b.x0)*s,(b.z1-b.z0)*s);
+ Object.values(BLD).forEach(b=>{if(b.upper)return;g.fillStyle=b.closed?'#9a8f84':'#c9bfae';g.fillRect(X(b.x0),Z(b.z0),(b.x1-b.x0)*s,(b.z1-b.z0)*s);
   if(!b.closed&&(big||s>2)){ROOMS.filter(r=>r.b===b.id).forEach(r=>{g.fillStyle=ZC[r.perm&&S.flags[r.perm]?'public':r.zone];g.globalAlpha=r.lobby?.55:.9;g.fillRect(X(r.x0)+1,Z(r.z0)+1,(r.x1-r.x0)*s-2,(r.z1-r.z0)*s-2);g.globalAlpha=1;});
    g.fillStyle=lockOk(b.lock)?'#2ecc71':'#e74c3c';g.fillRect(X(b.ex)-3,Z(b.ez)-3,6,6);}
   g.strokeStyle='#2b1d3a';g.lineWidth=big?1.5:1;g.strokeRect(X(b.x0),Z(b.z0),(b.x1-b.x0)*s,(b.z1-b.z0)*s);});
  if(big){g.fillStyle='#fff';g.font='bold 11px "Be Vietnam Pro",sans-serif';g.textAlign='center';g.strokeStyle='#2b1d3a';g.lineWidth=3;
-  Object.values(BLD).forEach(b=>{if(b.closed)return;const t=b.name;g.strokeText(t,X((b.x0+b.x1)/2),Z((b.z0+b.z1)/2)+4);g.fillText(t,X((b.x0+b.x1)/2),Z((b.z0+b.z1)/2)+4);});
-  g.font='bold 12px "Baloo 2",sans-serif';g.fillStyle='#ffe9c2';[['MAIN ST',-60,0],['ELM ST',-50,-60],['MAPLE LN',-50,60],['OAK AVE',0,-30],['WEST RD',-95,40],['EAST RD',95,40],['TOWN GREEN',-62,-46]].forEach(([t,x,z])=>{g.strokeText(t,X(x),Z(z)+4);g.fillText(t,X(x),Z(z)+4);});}
+  Object.values(BLD).forEach(b=>{if(b.closed||b.upper)return;const t=b.name;g.strokeText(t,X((b.x0+b.x1)/2),Z((b.z0+b.z1)/2)+4);g.fillText(t,X((b.x0+b.x1)/2),Z((b.z0+b.z1)/2)+4);});
+  g.font='bold 12px "Baloo 2",sans-serif';g.fillStyle='#ffe9c2';[['MAIN ST',-60,0],['ELM ST',-50,-60],['CEDAR LN',-50,60],['OAK AVE',0,-30],['WEST RD',-95,40],['EAST RD',95,40],['CÔNG VIÊN',-62,-46]].forEach(([t,x,z])=>{g.strokeText(t,X(x),Z(z)+4);g.fillText(t,X(x),Z(z)+4);});}
  CARS.forEach(c=>{g.fillStyle=c.police?'#2040ff':'#ddd';g.fillRect(X(c.x)-2,Z(c.z)-2,4,4);});
  NPCS.forEach(n=>{if(n.away)return;g.fillStyle=n.police?'#3a6aff':'#ff8cc0';g.beginPath();g.arc(X(n.x),Z(n.z),big?4.5:3,0,7);g.fill();if(big){g.fillStyle='#fff';g.font='10px sans-serif';g.strokeStyle='#000';g.lineWidth=2.5;g.strokeText(n.name,X(n.x),Z(n.z)-7);g.fillText(n.name,X(n.x),Z(n.z)-7);}});
  g.fillStyle='#ffc531';g.strokeStyle='#2b1d3a';g.lineWidth=2;g.beginPath();g.arc(X(P.x),Z(P.z),big?7:5,0,7);g.fill();g.stroke();
  const fx=Math.sin(P.face),fz=Math.cos(P.face);g.beginPath();g.moveTo(X(P.x)+fx*11,Z(P.z)+fz*11);g.lineTo(X(P.x)+fz*4,Z(P.z)-fx*4);g.lineTo(X(P.x)-fz*4,Z(P.z)+fx*4);g.closePath();g.fill();g.stroke();
  g.restore();}
-function showMap(){if(!modal.hidden)return closeModal();openModal(`<div class="who">Bản đồ · trực tiếp · ô vuông xanh = cửa đang mở, đỏ = đang khóa</div><h2>Maple Hollow, Vermont</h2><canvas id="mapc" width="1100" height="720"></canvas>
+function showMap(){if(!modal.hidden)return closeModal();openModal(`<div class="who">Bản đồ · trực tiếp · ô vuông xanh = cửa đang mở, đỏ = đang khóa</div><h2>Crestmoor, Oregon</h2><canvas id="mapc" width="1100" height="720"></canvas>
  <p style="color:var(--dim);font-size:11px">Màu phòng: kem = công cộng · vàng = riêng tư · cam = chỉ nhân viên · đỏ = khu cấm. Chấm hồng = người quen, xanh = cảnh sát.</p><div class="opts"><button id="xc">Đóng</button></div>`);
  mbox.classList.add('wide');drawMap(document.getElementById('mapc').getContext('2d'),1100,720,true);document.getElementById('xc').onclick=closeModal;}
 
 /* ---------- save / load ---------- */
 function save(quiet){S.pos=[P.x,P.z];try{localStorage.setItem(SAVE_KEY,JSON.stringify(S));quiet||toast('Đã lưu.');}catch(e){toast('Không lưu được: trình duyệt chặn bộ nhớ.');}}
 function applyWorldState(){if(S.flags.pondPink){WATER_U.uTint.value.set(0xff8fc8);WATER_U.uDeep.value.set(0x9a3a6a);}else{WATER_U.uTint.value.set(0xffffff);WATER_U.uDeep.value.set(0x2f5e5a);}}
-function load(){try{const d=localStorage.getItem(SAVE_KEY);if(!d)return toast('Chưa có bản lưu.');const o=JSON.parse(d),fr=fresh();S=Object.assign(fr,o);S.rel=Object.assign(fr.rel,o.rel);S.q=Object.assign({},o.q);
+function load(){try{const d=localStorage.getItem(SAVE_KEY);if(!d)return toast('Chưa có bản lưu.');const o=JSON.parse(d),fr=fresh();S=Object.assign(fr,o);S.rel=Object.assign(fr.rel,o.rel);S.q=Object.assign({},o.q);S.note=Object.assign(fr.note,o.note);
  tp(S.pos[0],S.pos[1]);NPCS.forEach(n=>{n.ov=null;spawnNPC(n);});applyWorldState();closeModal();sc.hidden=true;paused=false;toast('Đã tải: '+DAYS[weekday()]+' '+hm(hour())+'.');}catch(e){toast('Không tải được bản lưu.');}}
-function endScreen(title,text){openModal(`<div class="who">Maple Hollow</div><h2>${title}</h2><p>${text}</p><p style="color:var(--dim)">Bằng chứng ${evCount()}/5 · Nhân chứng ${witnesses().length} · Biên bản ${S.records} · Ảnh ${PICS.filter(p=>p.f()).length}/${PICS.length}</p><div class="opts"><button id="eR">Chơi lại từ đầu</button><button id="eL">Tải bản lưu</button><button id="eC" class="alt">Tiếp tục đi dạo thị trấn</button></div>`);
+function endScreen(title,text){openModal(`<div class="who">Crestmoor</div><h2>${title}</h2><p>${text}</p><p style="color:var(--dim)">Biên bản ${S.records} · Ảnh ${PICS.filter(p=>p.f()).length}/${PICS.length}</p><div class="opts"><button id="eR">Chơi lại từ đầu</button><button id="eL">Tải bản lưu</button><button id="eC" class="alt">Tiếp tục đi dạo thị trấn</button></div>`);
  document.getElementById('eR').onclick=()=>{try{localStorage.removeItem(SAVE_KEY);}catch(e){}location.reload();};document.getElementById('eL').onclick=()=>{closeModal();load();};document.getElementById('eC').onclick=closeModal;}
 
 bC.onclick=()=>library();bP.onclick=pictures;bI.onclick=inv;bM.onclick=showMap;bQ.onclick=questLog;bT.onclick=waitHalf;bS.onclick=()=>save();bL.onclick=load;bU.onclick=unstuck;
 
 /* ---------- interaction ---------- */
 function nearest(){let best=null,bd=2.3;
+ for(const o of INT){if(!o.pri||(o.hide&&o.hide()))continue;const d=Math.hypot(o.x-P.x,o.z-P.z);if(d<1.9&&bldAt(o.x,o.z)===P.b)return{o};}
  NPCS.forEach(n=>{if(n.away)return;const d=Math.hypot(n.x-P.x,n.z-P.z);if(d<bd&&bldAt(n.x,n.z)===P.b){bd=d;best={npc:n};}});
  INT.forEach(o=>{if(o.hide&&o.hide())return;const d=Math.hypot(o.x-P.x,o.z-P.z);if(d<Math.min(bd,1.9)){bd=d;best={o};}});
  if(!best)PEDS.forEach(p=>{if(!p.active)return;const d=Math.hypot(p.x-P.x,p.z-P.z);if(d<1.6&&d<bd){bd=d;best={ped:p};}});
  return best;}
-const PED_LINES=['"Chào cậu! Cháu nhà Celine phải không? Trông giống bà ấy hồi trẻ."','"Hollow Commons à? Tôi sẽ không bán căn nhà của ông bà tôi đâu."','"Đẹp trời nhỉ. Lá phong năm nay đỏ thật."','"Đi đường cẩn thận, xe buýt ở đây không bao giờ phanh kịp."','"Chủ nhật này đi xem phiên điều trần không? Nghe nói sẽ ồn ào lắm."','"Cậu đã thử bánh kếp ở Diner chưa? Đừng gọi cà phê, nhạt lắm."','"Tôi thấy bà Vance đi vào Nhà máy cũ mỗi chiều. Lạ thật."','"Thị trưởng hứa 200 việc làm. Năm ngoái ông ấy hứa sửa ổ gà trên Elm St."'];
+const PED_LINES=['"Sinh viên mới hả? Mùa mưa ở đây kéo dài tới tháng Năm, mua ủng đi."','"Đừng gửi tiền ở Ngân hàng Pryce. Vào thì dễ, ra thì khó."','"Lại có xe đen đậu trước Red Lantern cả đêm. Năm nay nhiều hơn năm ngoái."','"Cà phê ở Diner ngon nhất Crestmoor. Cũng là duy nhất."','"Thị trưởng Keller lại hứa sửa đường Elm St. Năm thứ ba rồi."','"Nhà Whitfield à? Tội nghiệp Sara. Từ sau vụ tai nạn của Mark..."','"Trời tạnh rồi đấy, tranh thủ phơi đồ đi."','"Cậu thấy bà Dawson nhà bên chưa? Bà ấy thấy cậu rồi đấy."'];
 function interact(){if(paused)return;const nb=nearest();if(!nb)return;if(nb.npc)return talk(nb.npc);if(nb.o)return nb.o.act();if(nb.ped){toast(nb.ped.name+': '+PED_LINES[(PEDS.indexOf(nb.ped)+day())%PED_LINES.length]);}}
 
 /* =====================================================================
@@ -226,7 +224,7 @@ const skyDay=new THREE.Color(0x9fd0f4),skyDusk=new THREE.Color(0xf0a070),skyNigh
 const LAMP_LIGHTS=[0,1,2,3,4,5].map(()=>{const l=new THREE.PointLight(0xffd8a0,0,22,1.6);scene.add(l);return l;});
 const clockEl=document.getElementById('clock'),locEl=document.getElementById('loc'),tbar=document.getElementById('tbar'),tlab=document.getElementById('tlab'),questEl=document.getElementById('quest'),promptEl=document.getElementById('prompt');
 let lastSeer=null,honkT=0;
-function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimationFrame(tick);bumpT-=dt;
+function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimationFrame(tick);if(window.INTRO_ON)return;bumpT-=dt;
  let pMoving=false;
  if(!paused){S.min+=dt;
   if(K.q)P.yaw+=dt*2;if(K.r)P.yaw-=dt*2;
@@ -236,19 +234,18 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
   if(mag>.12){pMoving=true;const sp=(P.crouch?2.3:K.shift?7.5:5.2)*dt*(JOY.on?Math.max(.45,mag):1),l=Math.hypot(mx,mz),s=Math.sin(P.yaw),c=Math.cos(P.yaw);
    const dx=(mx*c+mz*s)/l*sp,dz=(-mx*s+mz*c)/l*sp;if(!blocked(P.x+dx,P.z))P.x+=dx;if(!blocked(P.x,P.z+dz))P.z+=dz;P.face=Math.atan2(dx,dz);}
   P.b=bldAt(P.x,P.z);P.room=P.b?roomAt(P.x,P.z):null;
-  S.flags.hearing=hearingTime();
   NPCS.forEach(n=>stepNPC(n,dt));pedTick(dt);
   const agents=[{x:P.x,z:P.z,player:1}];NPCS.forEach(n=>{if(!n.away)agents.push(n);});PEDS.forEach(p=>{if(p.active)agents.push(p);});carTick(dt,agents);
   if(CARS.some(c=>c.stopT>2.5)&&(honkT-=dt)<=0){honkT=9;toast('BÍP BÍP! "Này cậu, đứng giữa đường làm gì thế?"');}
   // suspicion
-  let gain=0,seer=null;const z=zoneNow(),night=inHours(23,6);NPCS.forEach(n=>n.sees=false);
+  let gain=0,seer=null;const z=zoneNow();NPCS.forEach(n=>n.sees=false);
   if(!S.flags.ending)NPCS.forEach(n=>{if(!canSee(n))return;let g=0;
-   if(z==='secure')g=32;else if(z==='staff')g=22;else if(z==='semi'&&!n.police)g=8;else if(!P.b&&night&&n.police)g=26;
+   if(z==='secure')g=32;else if(z==='staff')g=22;else if(z==='semi'&&!n.police)g=8;
    if(g){n.sees=true;gain+=g;seer=n;}});
   if(seer)lastSeer=seer;
   S.trouble=clamp(S.trouble+(gain?gain*dt:-7*dt),0,100);
   if(S.trouble>=100&&seer&&!paused)caught(seer);
-  if(Math.floor(S.min)%30===0)checkDeadline();
+  storyTick(dt);
   if(day()!==S.lastDay){S.lastDay=day();}
  }
  // player rig
@@ -283,12 +280,12 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
  INT.forEach(o=>{const vis=!(o.hide&&o.hide())&&Math.hypot(o.x-P.x,o.z-P.z)<7&&(bldAt(o.x,o.z)===P.b);o.mark.visible=vis;if(vis){o.mark.rotation.y+=dt*2;o.mark.position.y=2.1+Math.sin(now/300)*.1;}});
  ren.render(scene,cam);
  // name tags
- NPCS.forEach(n=>{const d=Math.hypot(n.x-P.x,n.z-P.z);if(n.away||d>28||(bldAt(n.x,n.z)!==P.b&&(P.b||d>28))){n.tag.hidden=true;return;}
+ NPCS.forEach(n=>{const d=Math.hypot(n.x-P.x,n.z-P.z);if(n.away||d>28||bldAt(n.x,n.z)!==P.b){n.tag.hidden=true;return;}
   v3.set(n.x,2.45,n.z).project(cam);if(v3.z>1||Math.abs(v3.x)>1.1||Math.abs(v3.y)>1.1){n.tag.hidden=true;return;}n.tag.hidden=false;n.tag.style.left=(v3.x+1)/2*innerWidth+'px';n.tag.style.top=(1-v3.y)/2*innerHeight+'px';
   const e=n.sees?'<em>!</em>':n.emoteT>0?`<em class="${n.emote==='?'?'q':n.emote==='♥'?'h':''}">${n.emote}</em>`:'';const html=e+n.name;if(n.tag._h!==html){n.tag.innerHTML=html;n.tag._h=html;}});
  // HUD
- const hh=Math.floor(h),mm=Math.floor(S.min%60);clockEl.textContent=`${DAYS[weekday()]} · ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`+(inHours(23,6)?' · GIỚI NGHIÊM':'');
- const where=P.room?P.room.name:(P.x<-103.4&&P.z>-38.5&&P.z<-11.5)?'Sân Nhà máy cũ':nearRoadName();
+ const hh=Math.floor(h),mm=Math.floor(S.min%60);clockEl.textContent=`${DAYS[weekday()]} · ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
+ const where=P.room?P.room.name:(P.x<-103.4&&P.z>-38.5&&P.z<-11.5)?'Sân xưởng cũ':nearRoadName();
  const lt=where+(ZONE_NAME[zoneNow()]||'')+(P.crouch?' · đang cúi':'');if(locEl._t!==lt){locEl.textContent=lt;locEl._t=lt;}
  const t=S.trouble;tbar.style.width=t+'%';tbar.style.background=t<40?'var(--ok)':t<70?'var(--accent)':'var(--danger)';
  tlab.textContent=t<20?'Bình thường':t<40?'Bị để ý':t<60?'Bị nghi ngờ':t<80?'Bị chất vấn':'Sắp bị bắt!';
@@ -297,5 +294,5 @@ function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;requestAnimat
  if(nb){const txt=nb.npc?'Nói chuyện với '+nb.npc.name:nb.o?nb.o.label:'Chào '+nb.ped.name;if(promptEl._t!==txt){promptEl.textContent=txt;promptEl._t=txt;}promptEl.hidden=false;}else promptEl.hidden=true;
  document.getElementById('aE').classList.toggle('ready',!!nb);
  if((miniT-=dt)<0){miniT=.2;drawMap(mini,400,300,false,P.x,P.z,110);}}
-function nearRoadName(){let best='Maple Hollow',bd=9;ROADS.forEach(r=>{const d=Math.abs((r.ax==='x'?P.z:P.x)-r.c);if(d<bd){bd=d;best=r.name;}});
- if(P.x>-87.5&&P.x<-7.5&&P.z>-52.5&&P.z<-7.5)best='Công viên Town Green';return best;}
+function nearRoadName(){let best='Crestmoor',bd=9;ROADS.forEach(r=>{const d=Math.abs((r.ax==='x'?P.z:P.x)-r.c);if(d<bd){bd=d;best=r.name;}});
+ if(P.x>-87.5&&P.x<-7.5&&P.z>-52.5&&P.z<-7.5)best='Công viên Crestmoor';return best;}

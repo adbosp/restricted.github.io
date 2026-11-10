@@ -1,9 +1,9 @@
 /* =====================================================================
-   MAPLE HOLLOW · state, time, cast, schedules, people movement
+   CRESTMOOR · state, time, cast, schedules, people movement
    ===================================================================== */
-const SAVE_KEY='ra_city1';
-const START_REL={celine:20,sam:10,dex:15,bella:5,mia:5,kim:0,richard:5,marlowe:-10,simon:-15,linh:5,sloane:0,lan:5,sofia:0,mai:5,bennett:0,jess:0,pastor:5};
-function fresh(){return{min:9*60,pos:[-10,6.2],cash:30,inv:{},flags:{},q:{home:1},rel:Object.assign({},START_REL),trouble:0,records:0,taken:{},chatDay:{},giftDay:{},lastDay:1};}
+const SAVE_KEY='ra_crest1';
+const START_REL={sara:50,rossie:15,may:-20,dave:0,melania:0,jeanie:5,bancroft:0,laura:0,maria:0,chloe:-10,morgan:0,lucy:5,lily:-10,max:-10,evan:5,natasha:0,lynda:0,marcus:0,paul:0,williams:-5};
+function fresh(){return{min:16*60,pos:[-23,5.2],cash:60,inv:{},flags:{},q:{},c1:0,mayS:30,note:{rules:[],found:[],people:{}},rel:Object.assign({},START_REL),trouble:0,records:0,taken:{},chatDay:{},giftDay:{},lastDay:1};}
 let S=fresh();
 const day=()=>Math.floor(S.min/1440)+1;
 const hour=()=>(S.min%1440)/60;
@@ -16,44 +16,54 @@ function take(i){if(S.inv[i])S.inv[i]--;if(!S.inv[i])delete S.inv[i];}
 const hm=h=>{const m=Math.round(h*60);return String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0');};
 
 /* ---------- the cast (everyone is an adult) ----------
+   Story characters keep their own routine: they stay at home or at work and only go out when the
+   routine (classes, work, errands) or the story needs it. Background townsfolk live in PEDS below.
    sched rows: [hour, place]. place = room id | building id (lobby) | OUT key | '@patrol' | 'away'.
-   sat/sun rows replace the default list on those days. hearing:1 = attends the Sunday hearing. */
+   d = weekdays (classes run Mon-Fri), sat/sun replace it on weekends. */
 const NPCS=[
- {id:'celine',name:'Dì Celine',age:47,fem:1,job:'Dì giám hộ của Leo · làm bánh tại nhà',look:{skin:0xefc9ac,shirt:0x0f4a36,pants:0x3a3a3a,hair:0xc3bfbc,style:'bob',skirt:1},
-  sched:{d:[[0,'a_celine'],[7,'a_kitchen'],[10,'mart'],[11,'aunt'],[15,'green'],[17,'a_kitchen'],[22,'a_celine']],sun:[[0,'a_celine'],[7,'a_kitchen'],[9,'church'],[12,'aunt'],[15,'green'],[17,'aunt'],[22,'a_celine']]},hearing:1},
- {id:'richard',name:'Thị trưởng Lang',age:58,job:'Thị trưởng Maple Hollow',auth:1,look:{skin:0xeac2a2,shirt:0x1b2430,pants:0x1b2430,hair:0xd6d7dc,style:'short'},
-  sched:{d:[[0,'away'],[8,'h_mayor'],[12,'diner'],[13,'h_mayor'],[16.5,'ml_office'],[18,'inn'],[21,'away']],sat:[[0,'away'],[9,'square'],[10,'pond'],[11,'h_mayor'],[12,'diner'],[13,'h_mayor'],[16,'inn'],[20,'away']],
-   sun:[[0,'away'],[9,'church'],[11,'h_mayor'],[13,'diner'],[14,'h_mayor'],[22,'away']]},hearing:1},
- {id:'marlowe',name:'Marlowe Vance',age:46,fem:1,job:'Chủ tịch Vance Development',look:{skin:0xf0cdb4,shirt:0x1d1f27,pants:0x1d1f27,hair:0x1b1714,style:'bun'},
-  sched:{d:[[0,'i_r1'],[8,'inn'],[9,'ml_office'],[12,'diner'],[13,'h_mayor'],[14,'ml_office'],[19,'inn'],[23,'i_r1']]},hearing:1},
- {id:'simon',name:'Cảnh sát Simon',age:24,job:'Cảnh sát viên, ca chiều và đêm',auth:1,police:1,look:{skin:0xefcaa8,shirt:0x1f2f4f,pants:0x1f2f4f,hair:0x5b3a22,style:'cap',glasses:1},
-  sched:{d:[[0,'@patrol'],[3,'away'],[10,'police'],[11,'diner'],[12,'@patrol'],[15,'police'],[17,'@patrol'],[19,'police'],[20,'@patrol']]},hearing:1},
- {id:'kim',name:'Trung sĩ Kim',age:42,fem:1,job:'Trung sĩ cảnh sát, ca ngày',auth:1,police:1,look:{skin:0xe0aa84,shirt:0x1f2f4f,pants:0x1f2f4f,hair:0x6a4222,style:'pony'},
-  sched:{d:[[0,'away'],[7,'p_office'],[9,'@patrol'],[12,'diner'],[13,'p_office'],[15,'@patrol'],[18,'police'],[19,'away']]},hearing:1},
- {id:'sam',name:'Sam Reyes',age:22,fem:1,job:'Thư ký Tòa thị chính',look:{skin:0xefc9a8,shirt:0x2b4a7a,pants:0x2a2a3a,hair:0x6b3b22,style:'pony'},
-  sched:{d:[[0,'ap_a'],[8,'hall'],[12,'green'],[13,'hall'],[17,'mart'],[18,'diner'],[20,'ap_a']],sat:[[0,'ap_a'],[10,'green'],[13,'diner'],[15,'flowers'],[17,'ap_a']]},hearing:1},
- {id:'dex',name:'Dex Reed',age:20,job:'Hàng xóm · thợ ở trạm xăng',look:{skin:0xc48a5e,shirt:0x2a9d8f,pants:0x34557a,hair:0x16110e,style:'messy'},
-  sched:{d:[[0,'r_dex'],[9,'gaspump'],[13,'gas'],[14,'gaspump'],[17,'green'],[19,'diner'],[21,'r_dex']]},hearing:1},
- {id:'bella',name:'Bella Moore',age:21,fem:1,job:'Phục vụ quán Hollow Diner',look:{skin:0xf4d3bd,shirt:0xfbf5ee,pants:0xd33a3a,hair:0xe8c27a,style:'long',skirt:1},
-  sched:{d:[[0,'ap_b'],[7,'diner'],[15,'green'],[17,'diner'],[22,'ap_b']]}},
- {id:'mia',name:'Mia Torres',age:20,fem:1,job:'Kiểm lâm công viên Town Green',look:{skin:0xe3ae85,shirt:0x3a7a4a,pants:0x6b5a3a,hair:0x7a4a24,style:'bun'},
-  sched:{d:[[0,'ap_c'],[6,'pond'],[8,'shed'],[10,'green'],[12,'diner'],[13,'gazebo'],[16,'shed'],[19,'ap_c']]}},
- {id:'linh',name:'MC Linh Tran',age:30,fem:1,job:'MC kênh truyền hình WMHV-TV',look:{skin:0xe8bd9a,shirt:0xb3222c,pants:0x1a1a1a,hair:0x14110f,style:'bob'},
-  sched:{d:[[0,'i_r2'],[8,'t_news'],[12,'diner'],[14,'t_news'],[17,'square'],[19,'inn'],[23,'i_r2']]},hearing:1},
- {id:'sloane',name:'Cô Sloane',age:41,fem:1,job:'Giáo viên Lịch sử, Cao đẳng Maple Hollow',look:{skin:0xecc7ac,shirt:0x40454d,pants:0x40454d,hair:0x4a3426,style:'bun',glasses:1},
-  sched:{d:[[0,'away'],[8,'k_class1'],[12,'k_lounge'],[13,'k_class1'],[16,'k_lib'],[18,'away']],sat:[[0,'away'],[10,'k_lib'],[13,'green'],[15,'away']],sun:[[0,'away'],[9,'church'],[11,'away']]}},
- {id:'lan',name:'Cô Lan',age:36,fem:1,job:'Giáo viên Văn học, Cao đẳng Maple Hollow',look:{skin:0xf2d2bb,shirt:0xf6f2ea,pants:0x5a4a3a,hair:0xb98a58,style:'long',skirt:1},
-  sched:{d:[[0,'away'],[8,'k_class2'],[12,'diner'],[13,'k_lib'],[17,'green'],[19,'away']],sat:[[0,'away'],[10,'flowers'],[11,'green'],[14,'k_lib'],[17,'away']]}},
- {id:'sofia',name:'Bác sĩ Sofia',age:29,fem:1,job:'Bác sĩ phòng khám Maple',look:{skin:0xe9c3a6,shirt:0xf7f7f4,pants:0x2a8c92,hair:0x8a3d1c,style:'long',glasses:1},
-  sched:{d:[[0,'away'],[8,'c_exam'],[12,'diner'],[13,'c_exam'],[18,'away']],sat:[[0,'away'],[9,'pond'],[11,'c_exam'],[14,'away']],sun:[[0,'away'],[10,'green'],[12,'away']]}},
- {id:'mai',name:'Mai Lin',age:33,fem:1,job:'Chủ tiệm hoa Petal & Stem',look:{skin:0xf1cdb2,shirt:0xe5a7a0,pants:0x5a3a3a,hair:0x33201a,style:'long'},
-  sched:{d:[[0,'away'],[8,'flowers'],[18,'inn'],[20,'away']],sun:[[0,'away'],[9,'church'],[11,'flowers'],[16,'away']]}},
- {id:'bennett',name:'Bà Bennett',age:38,fem:1,job:'Giám đốc Ngân hàng Maple Hollow',look:{skin:0xf6d7c5,shirt:0xead7bf,pants:0x3a2a2a,hair:0x8a2f1d,style:'bob'},
-  sched:{d:[[0,'away'],[9,'b_office'],[12,'diner'],[13,'b_office'],[17,'inn'],[20,'away']],sat:[[0,'away'],[11,'green'],[13,'away']],sun:[[0,'away'],[9,'church'],[11,'away']]}},
- {id:'jess',name:'Jess Walker',age:31,job:'Chủ tiệm kim khí Walker',look:{skin:0xf0c8a4,shirt:0xc0392b,pants:0x34557a,hair:0xc79b52,style:'short'},
-  sched:{d:[[0,'away'],[8,'hardware'],[12,'w_back'],[13,'hardware'],[18,'diner'],[20,'away']],sun:[[0,'away'],[12,'green'],[15,'away']]}},
- {id:'pastor',name:'Mục sư Avery',age:62,job:'Mục sư nhà thờ Thánh Giles',look:{skin:0xe8c0a0,shirt:0x1a1a1a,pants:0x1a1a1a,hair:0xe8e8e8,style:'short'},
-  sched:{d:[[0,'away'],[7,'church'],[12,'diner'],[13,'ch_office'],[17,'green'],[19,'ch_office'],[21,'away']],sun:[[0,'away'],[7,'church'],[13,'ch_office'],[16,'green'],[21,'away']]},hearing:1},
+ {id:'sara',name:'Sara Whitfield',age:40,fem:1,job:'Chủ nhà · góa phụ',look:{skin:0xf0cdb4,shirt:0x8e8e92,pants:0x3a3a4a,hair:0x6a4228,style:'bun'},
+  sched:{d:[[0,'w_sara'],[6.5,'w_kitchen'],[8,'whit'],[10,'mart'],[11,'w_kitchen'],[13,'whit'],[17.5,'w_kitchen'],[20,'whit'],[22,'w_sara']],
+   sun:[[0,'w_sara'],[8,'w_kitchen'],[9.5,'church'],[11.5,'whit'],[17.5,'w_kitchen'],[20,'whit'],[22,'w_sara']]}},
+ {id:'rossie',name:'Rossie Whitfield',age:19,fem:1,job:'Con gái Sara · sinh viên năm ba',look:{skin:0xf2d2bb,shirt:0x2b2b38,pants:0x34405a,hair:0x14110f,style:'pony'},
+  sched:{d:[[0,'w_rossie'],[7.5,'w_kitchen'],[8.3,'k_class1'],[12,'diner'],[13,'k_chem'],[15.5,'green'],[16.3,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie'],[22.5,'inn']],
+   sat:[[0,'inn'],[2,'w_rossie'],[12,'w_kitchen'],[13,'w_rossie'],[16,'mart'],[17,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie'],[22,'inn']],
+   sun:[[0,'inn'],[2,'w_rossie'],[12,'w_kitchen'],[13,'w_rossie'],[18.8,'w_kitchen'],[20,'w_rossie']]}},
+ {id:'may',name:'May Dawson',age:42,fem:1,job:'Hàng xóm nhà bên',look:{skin:0xf2d0bb,shirt:0xc0392b,pants:0x3a3a3a,hair:0xe8cf8a,style:'bob'},
+  sched:{d:[[0,'r_may'],[7,'dawson'],[9.5,'mayfence'],[10,'mart'],[11,'dawson'],[15.5,'mayfence'],[16.6,'dawson'],[22,'r_may']]}},
+ {id:'dave',name:'Thị trưởng Dave Keller',age:58,job:'Thị trưởng Crestmoor',look:{skin:0xeac2a2,shirt:0x1b2430,pants:0x1b2430,hair:0xc9cbd0,style:'short'},
+  sched:{d:[[0,'away'],[8,'h_mayor'],[12,'diner'],[13,'h_mayor'],[17,'inn'],[18.5,'away']],sat:[[0,'away'],[11,'square'],[12,'away']],sun:[[0,'away']]}},
+ {id:'melania',name:'Melania Keller',age:55,fem:1,job:'Vợ Thị trưởng',look:{skin:0xefcfb8,shirt:0x6a1a2b,pants:0x2a1a1a,hair:0xd8d2c8,style:'bob'},
+  sched:{d:[[0,'away'],[10,'h_mayor'],[11.5,'flowers'],[12.5,'away']],sun:[[0,'away'],[9.5,'church'],[11.5,'away']]}},
+ {id:'jeanie',name:'Jeanie Blaine',age:37,fem:1,job:'MC kênh tin KCRM-TV',look:{skin:0xe8bd9a,shirt:0xb3222c,pants:0x1a1a1a,hair:0x14110f,style:'long'},
+  sched:{d:[[0,'away'],[8,'t_news'],[12,'diner'],[13,'college'],[14,'t_news'],[19,'inn'],[21,'away']],sat:[[0,'away'],[11,'t_news'],[15,'away']],sun:[[0,'away']]}},
+ {id:'bancroft',name:'Hiệu trưởng Bancroft',age:44,fem:1,job:'Hiệu trưởng Đại học Crestmoor',look:{skin:0xecc7ac,shirt:0x40454d,pants:0x40454d,hair:0x9a9590,style:'bun',glasses:1},
+  sched:{d:[[0,'away'],[7.5,'k_dean'],[18,'away']],sat:[[0,'away']],sun:[[0,'away']]}},
+ {id:'laura',name:'Cô Laura Hanley',age:35,fem:1,job:'Giáo viên Hóa học',look:{skin:0xe9c3a6,shirt:0xf7f7f4,pants:0x2a3a4a,hair:0x1a1410,style:'long',glasses:1},
+  sched:{d:[[0,'away'],[7.8,'k_chem'],[12,'college'],[13,'k_chem'],[17,'away']],sat:[[0,'away']],sun:[[0,'away']]}},
+ {id:'maria',name:'Maria Ortega',age:39,fem:1,job:'Doanh nhân · cổ đông lớn nhất của trường',look:{skin:0xd9a37a,shirt:0xead7bf,pants:0x2a2420,hair:0x2a1a10,style:'long'},
+  sched:{d:[[0,'away'],[10,'k_dean'],[11,'away'],[12,'diner'],[13.5,'away']],sat:[[0,'away']],sun:[[0,'away']]}},
+ {id:'chloe',name:'Chloe Ames',age:42,fem:1,job:'Bạn thân của Sara',look:{skin:0xf0cdb4,shirt:0x3a7a6a,pants:0x3a3a3a,hair:0xb98a58,style:'bob'},
+  sched:{d:[[0,'away'],[12,'diner'],[13,'away']],sat:[[0,'away'],[10,'whit'],[11.5,'away']],sun:[[0,'away'],[9.5,'church'],[11.5,'away']]}},
+ {id:'morgan',name:'Morgan Pryce',age:62,job:'CEO Ngân hàng Pryce',look:{skin:0xe8c0a0,shirt:0x262626,pants:0x262626,hair:0xeeeeee,style:'short'},
+  sched:{d:[[0,'away'],[9,'b_office'],[12.5,'diner'],[13.5,'b_office'],[17,'inn'],[19,'away']],sat:[[0,'away']],sun:[[0,'away'],[9.5,'church'],[11.5,'away']]}},
+ {id:'lucy',name:'Lucy Reed',age:19,fem:1,job:'Bạn cùng lớp',look:{skin:0xf2d2bb,shirt:0xf2a7b8,pants:0x5a6a8a,hair:0x7a4a24,style:'long',skirt:1},
+  sched:{d:[[0,'ap_a'],[8.3,'k_class1'],[12,'k_lib'],[13,'k_chem'],[15.5,'k_lib'],[17.5,'ap_a']],sat:[[0,'ap_a'],[11,'green'],[13,'ap_a'],[17,'diner'],[19,'ap_a']],sun:[[0,'ap_a']]}},
+ {id:'lily',name:'Lily',age:18,fem:1,job:'Bạn cùng lớp',look:{skin:0xf4d3bd,shirt:0xd94f8a,pants:0x1a1a1a,hair:0x14110f,style:'bob',skirt:1},
+  sched:{d:[[0,'ap_b'],[8.3,'k_class1'],[12,'diner'],[13,'k_chem'],[15.5,'ap_b'],[20,'inn'],[23,'ap_b']],sat:[[0,'ap_b'],[14,'mart'],[15,'ap_b'],[20,'inn'],[23.5,'ap_b']],sun:[[0,'ap_b']]}},
+ {id:'max',name:'Max',age:19,job:'Bạn cùng lớp',look:{skin:0xf0c49a,shirt:0x2a4a8a,pants:0x2a2a2a,hair:0xc79b52,style:'short'},
+  sched:{d:[[0,'ap_c'],[8.3,'k_class1'],[12,'diner'],[13,'k_chem'],[15.5,'ap_c'],[20,'inn'],[23.5,'ap_c']],sat:[[0,'ap_c'],[12,'gaspump'],[13,'ap_c'],[20,'inn'],[23.5,'ap_c']],sun:[[0,'ap_c']]}},
+ {id:'evan',name:'Evan Shaw',age:18,job:'Bạn cùng lớp',look:{skin:0xefcaa8,shirt:0x3a3a3a,pants:0x34557a,hair:0x8a3d1c,style:'messy'},
+  sched:{d:[[0,'ap_c'],[8.3,'k_class1'],[12,'k_lib'],[13,'k_chem'],[15.5,'ap_c'],[21,'inn'],[22.5,'ap_c']],sat:[[0,'ap_c'],[21,'inn'],[22.5,'ap_c']],sun:[[0,'ap_c']]}},
+ {id:'natasha',name:'Cảnh sát Natasha Brooks',age:27,fem:1,job:'Cảnh sát tuần tra',auth:1,police:1,look:{skin:0xf6d7c5,shirt:0x1f2f4f,pants:0x1f2f4f,hair:0x8a2f1d,style:'pony'},
+  sched:{d:[[0,'@patrol'],[3,'away'],[14,'police'],[15,'@patrol'],[19,'diner'],[19.5,'@patrol']]}},
+ {id:'lynda',name:'Đại úy Lynda Ford',age:38,fem:1,job:'Đại úy cảnh sát · điều tra Red Mafia',auth:1,police:1,look:{skin:0xe0aa84,shirt:0x1f2f4f,pants:0x1f2f4f,hair:0x5a3a22,style:'bun'},
+  sched:{d:[[0,'away'],[8,'p_office'],[12,'diner'],[13,'p_office'],[19,'away']],sun:[[0,'away']]}},
+ {id:'marcus',name:'Marcus Vale',age:25,job:'Thám tử tự do',look:{skin:0xc48a5e,shirt:0x5a4a3a,pants:0x2a2a2a,hair:0x16110e,style:'short'},
+  sched:{d:[[0,'away'],[11,'diner'],[12,'away'],[20,'inn'],[23,'away']]}},
+ {id:'paul',name:'Paul',age:25,job:'Trung gian chợ đen',look:{skin:0xf0c8a4,shirt:0x2f4a3a,pants:0x34557a,hair:0x2a1a10,style:'cap'},
+  sched:{d:[[0,'away'],[14,'shed'],[22,'away']]}},
+ {id:'williams',name:'Williams',age:50,job:'Trùm băng Red Mafia',look:{skin:0xd9a37a,shirt:0x111111,pants:0x111111,hair:0x1a1a1a,style:'bald'},
+  sched:{d:[[0,'away'],[15,'ml_office'],[18,'inn'],[23,'away']],sun:[[0,'away']]}},
 ];
 const npc=id=>NPCS.find(n=>n.id===id);
 
@@ -82,14 +92,13 @@ function makePerson(L){const g=new THREE.Group();scene.add(g);const prev=PUT;PUT
  PUT=prev;return{g,lL,lR,aL,aR,ph:0};}
 function animate(rig,moving,dt,speed=1){if(moving)rig.ph+=dt*9*speed;else rig.ph*=.85;const s=Math.sin(rig.ph)*(moving?.6:0);
  rig.lL.rotation.x=s;rig.lR.rotation.x=-s;rig.aL.rotation.x=-s*.8;rig.aR.rotation.x=s*.8;}
-npc('simon').look.badge=npc('kim').look.badge=1;npc('pastor').look.collar=1;
+npc('natasha').look.badge=npc('lynda').look.badge=1;
 
 /* ---------- schedules → goals ---------- */
 function schedRows(n){const w=weekday();return(w===1&&n.sched.sat)||(w===2&&n.sched.sun)||n.sched.d;}
 function schedPlace(n){const h=hour(),rows=schedRows(n);let cur=rows[rows.length-1];for(const r of rows)if(r[0]<=h)cur=r;
- if(n.hearing&&hearingTime()&&!S.flags.ending)return'h_council';
+ const st=storyPlace(n);if(st)return st;
  return cur[1];}
-function hearingTime(){return weekday()===2&&day()===3&&hour()>=17.5&&hour()<21;}
 function goalOf(n){if(n.ov&&S.min<n.ov.until)return n.ov.place;n.ov=null;return schedPlace(n);}
 function targetOf(place){
  if(place==='away')return{key:'away',away:1};
@@ -117,6 +126,7 @@ function stepNPC(n,dt){const place=goalOf(n),g=targetOf(place);
  if(n.away)return;
  let tx,tz,moving=false;
  if(n.path.length){[tx,tz]=n.path[0];}else if(n.final){[tx,tz]=n.final;}
+ if(tx!==undefined&&stairJump(n,tx,tz)){if(n.path.length)n.path.shift();return;}
  if(tx!==undefined){const dx=tx-n.x,dz=tz-n.z,d=Math.hypot(dx,dz);const far=Math.hypot(n.x-P.x,n.z-P.z)>38;const sp=(n.police&&g.patrol?1.5:1.55)*(far?9:1)*dt;
   if(d<=sp+.02){n.x=tx;n.z=tz;if(n.path.length)n.path.shift();else{n.final=null;n.idleT=rnd(4,12);}
    if(!n.path.length&&!n.final){if(g.away){n.away=true;}else if(g.patrol){n.patrolI=(n.patrolI+1)%PATROL_PTS.length;planTo(n,PATROL_PTS[n.patrolI]);}}}
@@ -124,20 +134,52 @@ function stepNPC(n,dt){const place=goalOf(n),g=targetOf(place);
  else if(g.rect&&(n.idleT-=dt)<=0){n.final=randIn(g.rect);}
  if(n.talkT>0){n.talkT-=dt;moving=false;}
  n.moving=moving;if(n.emoteT>0)n.emoteT-=dt;}
+function stairJump(o,tx,tz){const U=STAIRS.up,D=STAIRS.down;const near=(x,z,p)=>Math.hypot(x-p[0],z-p[1])<.6;
+ if((near(o.x,o.z,D)&&near(tx,tz,U))||(near(o.x,o.z,U)&&near(tx,tz,D))){o.x=tx;o.z=tz;return true;}return false;}
 function nearestPatrol(n){let b=0,bd=1e9;PATROL_PTS.forEach((p,i)=>{const d=Math.hypot(NODES[p].x-n.x,NODES[p].z-n.z);if(d<bd){bd=d;b=i;}});return b;}
 function emote(n,e,t=4){n.emote=e;n.emoteT=t;}
 
-/* ---------- ambient townsfolk ---------- */
+/* ---------- background townsfolk (not part of the story) ----------
+   Each one has a home (an edge of town or the student flats), a job and a daily routine like a small
+   GTA-style crowd: commute in the morning, lunch at noon, errands after work, a night out, then home.
+   At home off the edge of town they are hidden, so the streets fill at rush hour and empty at night. */
 const PEDS=[];
-{const skins=[0xf0c49a,0xe0aa84,0xc48a5e,0x8d5a3a,0xf4d3bd,0xd9a37a],shirts=[0x3a6ea5,0xc0392b,0x27ae60,0xf39c12,0x8e44ad,0x7f8c8d,0xe67e22,0x16a085,0xd35400,0x2c3e50],hairs=[0x2a1a10,0x5a3a22,0xc79b52,0x1a1a1a,0x8a5a3a,0xd8d8d8],styles=['short','long','bob','pony','bun','cap','messy','bald'];
- for(let i=0;i<18;i++){const fem=i%2===0;const L={fem,skin:skins[i%6],shirt:shirts[i%10],pants:[0x34557a,0x2a2a2a,0x6b5a3a,0x4a4a6a][i%4],hair:hairs[(i*5)%6],style:fem?['long','bob','pony','bun'][i%4]:['short','cap','messy','bald','short'][i%5],skirt:fem&&i%3===0};
-  const p={rig:makePerson(L),x:0,z:0,path:[],face:0,sp:rnd(1.1,1.6),wait:0,active:true,name:fem?['Cô Hannah','Bà Ruth','Cô Grace','Chị Olivia','Cô Emma','Bà June','Chị Ava','Cô Lily','Bà Dottie'][i/2|0]:['Ông Walt','Anh Ben','Chú Hank','Anh Tyler','Ông Gus','Anh Noah','Chú Frank','Ông Earl','Anh Cody'][i/2|0]};
-  const nd=NODES[WALKN[(i*37)%WALKN.length]];p.x=nd.x+rnd(-.5,.5);p.z=nd.z+rnd(-.5,.5);PEDS.push(p);}}
-function pedTick(dt){const h=hour(),want=h>=7&&h<21?PEDS.length:h>=21&&h<23?8:h>=6&&h<7?6:2;
- PEDS.forEach((p,i)=>{p.active=i<want;p.rig.g.visible=p.active;if(!p.active)return;
-  if(p.wait>0){p.wait-=dt;animate(p.rig,false,dt);return;}
-  if(!p.path.length){const dest=WALKN[Math.floor(Math.random()*WALKN.length)];const from=nearestNode(p.x,p.z);const path=dijkstra(from,dest);p.path=path?path.map(k=>[NODES[k].x+rnd(-.6,.6),NODES[k].z+rnd(-.6,.6)]):[];p.wait=rnd(1,6);return;}
-  const[tx,tz]=p.path[0],dx=tx-p.x,dz=tz-p.z,d=Math.hypot(dx,dz),sp=p.sp*dt;
-  // politely stop if a car is right in front while crossing
-  if(d<=sp){p.x=tx;p.z=tz;p.path.shift();}else{p.x+=dx/d*sp;p.z+=dz/d*sp;p.face=Math.atan2(dx,dz);}
-  const g=p.rig.g;g.position.set(p.x,0,p.z);let df=p.face-g.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));g.rotation.y+=df*.2;animate(p.rig,d>sp,dt,1);});}
+const PED_JOBS=['mart','hardware','flowers','diner','bank','hall','clinic','college','gas','studio','church','police'];
+const PED_LUNCH=['diner','green','square','mart','gazebo','pond'];
+const PED_ERR=['mart','gas','flowers','hardware','diner','busstop'];
+const PED_EVE=['inn','diner','green','square','pond'];
+function pedSched(i){const R=k=>((i*7919+k*104729)%1000)/1000;const pk=(a,k)=>a[Math.floor(R(k)*a.length)];const kind=i%10<6?'work':i%10<8?'student':'retired';
+ const home=i%4===3?'apts':'@home';const job=pk(PED_JOBS,1),lunch=pk(PED_LUNCH,2),err=pk(PED_ERR,3),eve=pk(PED_EVE,4),j=R(5)*1.2;
+ if(kind==='student')return{kind,d:[[0,home],[7.6+j*.4,'college'],[12,lunch],[13,'college'],[15.5+j,pk(['green','mart','diner','pond'],6)],[17.5+j,home],[20+j,R(7)<.5?'inn':'diner'],[22.5+j,home]],
+  we:[[0,home],[10+j*2,pk(['green','pond','mart','gazebo'],8)],[13,lunch],[15,pk(['green','square','mart'],9)],[18,home],[20,eve],[23,home]]};
+ if(kind==='retired')return{kind,d:[[0,home],[8+j,pk(['green','pond','gazebo'],10)],[10+j,pk(['church','mart','flowers','clinic'],11)],[12,lunch],[14,pk(['gazebo','green','square','pond'],12)],[16.5+j,home]],
+  we:[[0,home],[9+j,pk(['church','green','pond'],13)],[12,lunch],[14,pk(['green','square','gazebo'],14)],[17,home]]};
+ return{kind,d:[[0,home],[6.8+j,job],[12,lunch],[13,job],[17+j*.6,err],[18+j,home],...(R(15)<.6?[[19.5+j,eve],[21.5+j,home]]:[])],
+  we:[[0,home],[9.5+j*2,pk(['mart','green','pond','gas','flowers'],16)],[12.5,lunch],[14+j,pk(['green','square','pond','gazebo'],17)],[17,home],...(R(18)<.7?[[20,eve],[22.5+j,home]]:[])]};}
+{const skins=[0xf0c49a,0xe0aa84,0xc48a5e,0x8d5a3a,0xf4d3bd,0xd9a37a],shirts=[0x3a6ea5,0xc0392b,0x27ae60,0xf39c12,0x8e44ad,0x7f8c8d,0xe67e22,0x16a085,0xd35400,0x2c3e50],hairs=[0x2a1a10,0x5a3a22,0xc79b52,0x1a1a1a,0x8a5a3a,0xd8d8d8];
+ const fn=['Hannah','Ruth','Grace','Olivia','Emma','June','Ava','Nora','Dottie','Claire','Ivy','Megan','Rosa','Tess','Paige','Wendy','Abby'],mn=['Walt','Ben','Hank','Tyler','Gus','Noah','Frank','Earl','Cody','Jake','Luis','Owen','Reggie','Sam','Theo','Wade','Duke'];
+ for(let i=0;i<34;i++){const fem=i%2===0;const sch=pedSched(i);const old=sch.kind==='retired';
+  const L={fem,skin:skins[i%6],shirt:shirts[(i*3)%10],pants:[0x34557a,0x2a2a2a,0x6b5a3a,0x4a4a6a][i%4],hair:old?0xd8d8d8:hairs[(i*5)%6],style:fem?['long','bob','pony','bun'][i%4]:['short','cap','messy','bald','short'][i%5],skirt:fem&&i%3===0};
+  const nm=fem?fn[(i/2|0)%fn.length]:mn[(i/2|0)%mn.length];
+  const p={rig:makePerson(L),x:0,z:0,path:[],face:0,sp:old?rnd(.9,1.15):rnd(1.15,1.6),wait:0,active:false,goal:null,final:null,idleT:0,sch,
+   name:(old?(fem?'Bà ':'Ông '):(sch.kind==='student'?'':(fem?'Cô ':'Anh ')))+nm,kind:sch.kind,home:sch.d[0][1]};
+  p.exit=EXITS[i%EXITS.length];PEDS.push(p);}}
+function pedPlace(p){const h=hour(),w=weekday(),rows=w===1||w===2?p.sch.we:p.sch.d;let cur=rows[0];for(const r of rows)if(r[0]<=h)cur=r;return cur[1];}
+function pedTarget(p,pl){if(pl==='@home')return{key:pl,nid:p.exit,hide:1};
+ if(OUT[pl]){const o=OUT[pl];return{key:pl,nid:o.nid,rect:o.rect};}const r=BLD[pl]&&BLD[pl].lob;if(!r)return{key:pl,nid:p.exit,hide:1};
+ return{key:pl,nid:r.nid,rect:[r.x0+1,r.z0+1,r.x1-1,r.z1-1]};}
+function pedPlan(p,nid){const from=nearestNode(p.x,p.z);const path=dijkstra(from,nid);p.path=path?path.map(k=>[NODES[k].x+(NODES[k].tag==='walk'?rnd(-.7,.7):0),NODES[k].z+(NODES[k].tag==='walk'?rnd(-.7,.7):0)]):[];}
+function pedSpawn(p){const g=pedTarget(p,pedPlace(p));p.goal=g.key;p.path=[];p.final=null;
+ if(g.hide){p.active=false;const e=NODES[p.exit];p.x=e.x;p.z=e.z;return;}p.active=true;const[x,z]=randIn(g.rect);p.x=x;p.z=z;p.idleT=rnd(2,20);}
+PEDS.forEach(pedSpawn);
+function pedTick(dt){PEDS.forEach(p=>{const g=pedTarget(p,pedPlace(p));
+  if(p.goal!==g.key){p.goal=g.key;p.final=null;if(!p.active){const e=NODES[p.exit];p.x=e.x;p.z=e.z;p.active=true;}pedPlan(p,g.nid);if(g.rect)p.final=randIn(g.rect);}
+  p.rig.g.visible=p.active;if(!p.active)return;
+  let tx,tz;if(p.path.length)[tx,tz]=p.path[0];else if(p.final)[tx,tz]=p.final;
+  let moving=false;
+  if(tx!==undefined){const dx=tx-p.x,dz=tz-p.z,d=Math.hypot(dx,dz),far=Math.hypot(p.x-P.x,p.z-P.z)>38,sp=p.sp*(far?9:1)*dt;
+   if(d<=sp+.02){p.x=tx;p.z=tz;if(p.path.length)p.path.shift();else{p.final=null;p.idleT=rnd(5,25);}
+    if(!p.path.length&&!p.final&&g.hide){p.active=false;}}
+   else{p.x+=dx/d*sp;p.z+=dz/d*sp;p.face=Math.atan2(dx,dz);moving=true;}}
+  else if(g.rect&&(p.idleT-=dt)<=0)p.final=randIn(g.rect);
+  const rg=p.rig.g;rg.position.set(p.x,0,p.z);let df=p.face-rg.rotation.y;df=Math.atan2(Math.sin(df),Math.cos(df));rg.rotation.y+=df*.2;animate(p.rig,moving&&!paused,dt,1);});}

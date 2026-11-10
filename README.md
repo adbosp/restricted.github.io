@@ -1,12 +1,13 @@
-# Restricted Access · Maple Hollow
+# Thuê Phòng · Crestmoor
 
 Chơi online: https://adbosp.github.io/restricted.github.io/
 
-Thị trấn nhỏ Maple Hollow, Vermont. Leo (19 tuổi) về sống với Dì Celine đúng tuần Thị trưởng Lang định san phẳng công viên Town Green và nhà thờ để xây trung tâm thương mại "Hollow Commons". Bạn có ba ngày (thứ Sáu tới Chủ nhật) để gom ít nhất 3 bằng chứng, thuyết phục 3 người dân làm chứng, rồi lên bục ở phiên điều trần Chủ nhật 18:00 tại Tòa thị chính.
+Crestmoor, Oregon. Ethan Cole (18 tuổi) thuê phòng trên tầng hai nhà Sara Whitfield, một góa phụ đang nợ Ngân hàng Pryce, sống cùng cô con gái Rossie. Hàng xóm May Dawson theo dõi mọi thứ qua rèm cửa. Hiện có **Chương 1: Ngày dọn vào**, mở đầu bằng cảnh ngồi xe trong đêm mưa vào thị trấn.
 
-- Bản đồ: 6 con đường, Tòa thị chính, đồn cảnh sát, ngân hàng, quán Diner, chợ, tiệm kim khí, tiệm hoa, trường quay WMHV-TV, phòng khám, cao đẳng, Maple Inn, trạm xăng, nhà thờ, công viên có hồ, khu nhà ở và Nhà máy cũ.
-- Nhân vật: Thị trưởng, hai cảnh sát, MC Linh, hai giáo viên, Dì Celine, hàng xóm Dex và 10 người dân khác, mỗi người có lịch sinh hoạt riêng; thêm người đi đường, xe hơi, xe buýt và xe cảnh sát chạy vòng thị trấn.
-- Điều khiển máy tính: WASD (Shift chạy), kéo chuột xoay, lăn chuột zoom, E tương tác, C cúi, M bản đồ, J nhiệm vụ, I túi, L nhân vật, P ảnh, T chờ 30 phút, F5/F9 lưu/tải.
+- Lối chơi kiểu "sổ ghi chú": quy tắc nhà, các mối quan hệ, những điều phát hiện (phím J). Trò nghịch nhỏ có hậu quả; lòng tin của Sara mất thì khó lấy lại.
+- Chỉ số: Sara (tin cậy), Rossie (thiện cảm), May (nghi ngờ). Lựa chọn cuối chương được lưu cho Chương 2.
+- Thị trấn: người đi đường đi theo lịch (đi làm, đi học, về nhà); nhân vật chính có lịch riêng, chỉ ra ngoài khi cần, khi đi học hoặc khi cốt truyện gọi.
+- Điều khiển máy tính: WASD (Shift chạy), kéo chuột xoay, lăn chuột zoom, E tương tác, C cúi, M bản đồ, J sổ ghi chú, I túi, L nhân vật, P ảnh, T chờ 30 phút, F5/F9 lưu/tải.
 - Điện thoại: cần điều khiển bên trái, nút E/C bên phải, kéo màn hình để xoay, chụm hai ngón để zoom.
 
 ## Cài game về điện thoại
@@ -22,7 +23,7 @@ Game đã cài mở toàn màn hình và chơi được khi không có mạng (s
 
 `index.html` (cùng nội dung `RestrictedAccess.html`) được ghép từ thư mục `src/` bằng `python3 src/build.py`. Khi đổi file, tăng số `CACHE` trong `sw.js` để máy đã cài nhận bản mới.
 
-Bản học viện cũ (Ashgrove, v20) được giữ nguyên ở `backups/academy-v20.html`.
+Bản cũ được giữ ở `backups/`: Maple Hollow (`maplehollow.html`) và học viện Ashgrove v20 (`academy-v20.html`).
 
 ---
 
