@@ -289,6 +289,8 @@ const F={
  locker(x,z,r,c=0x4a6fa5){const g=grp(x,z,r);mesh(B(.9,2,.6),C(c),0,1,0,g);mesh(B(.02,1.9,.02),C(0x222222),0,1,.31,g,false);for(let y=1.6;y<1.9;y+=.08)mesh(B(.5,.02,.02),C(0x222222),.2,y,.31,g,false);return g;},
  crate(x,z,s=1,r=0){const g=grp(x,z,r);mesh(B(s,s,s),mat('crate',1,1),0,s/2,0,g);return g;},
  rack(x,z,r){const g=grp(x,z,r);mesh(B(.8,2.2,1),C(0x1e2328),0,1.1,0,g);for(let y=.3;y<2.1;y+=.25)mesh(B(.04,.04,.02),C(0,Math.random()<.7?0x22ff66:0xff4433),-.25,y,.51,g,false);return g;},
+ toilet(x,z,r){const g=grp(x,z,r);mesh(B(.45,.42,.6),C(0xf6f6f2),0,.21,.05,g);mesh(B(.5,.7,.2),C(0xf6f6f2),0,.55,-.28,g);mesh(B(.46,.04,.5),C(0xe8e8e2),0,.44,.08,g,false);return g;},
+ sink(x,z,r){const g=grp(x,z,r);mesh(B(.6,.85,.45),C(0xe2ded6),0,.42,0,g);mesh(B(.5,.06,.36),C(0x9ab0c0),0,.87,.02,g,false);mesh(B(.6,.8,.04),C(0xcfe3ee,0x223344),0,1.55,-.2,g,false);return g;},
  washer(x,z,r){const g=grp(x,z,r);mesh(B(.9,1,.8),C(0xf5f5f5),0,.5,0,g);const d=mesh(new THREE.CylinderGeometry(.28,.28,.05,18),C(0x6a8ca8,0x0a1a2a),0,.5,.41,g,false);d.rotation.x=Math.PI/2;return g;},
  board(x,z,r){const g=grp(x,z,r);mesh(B(4,1.5,.08),mat('chalk',1,1),0,1.7,0,g,false);return g;},
  rug(x,z,w,d,c){plane(w,d,mat('carpet',w/2,d/2,c),x,.05,z);},
@@ -383,12 +385,12 @@ const BLD={
   lobby:{name:'Kho đồ cũ của Paul',zone:'semi'},auth:['paul'],rooms:[]},
  whit:{name:'Nhà Whitfield · số 14',x0:-32,x1:-14,z0:10,z1:26,h:6.4,front:'n',at:-23,style:'house',tint:0xf4f1ea,floor:'wood',band:7,home:1,lock:{flag:'movedIn'},
   lobby:{name:'Phòng khách nhà Whitfield',zone:'public'},auth:['sara','rossie'],
-  rooms:[{id:'w_kitchen',name:'Bếp nhà Whitfield',a:[-32,-21],zone:'public',kind:'wkitchen'},{id:'w_stair',name:'Chân cầu thang',a:[-21,-14],zone:'public',kind:'stairs'}]},
+  rooms:[{id:'w_kitchen',name:'Bếp nhà Whitfield',a:[-32,-24],zone:'public',kind:'wkitchen'},{id:'w_wc0',name:'Nhà vệ sinh tầng 1',a:[-24,-20.5],zone:'public',kind:'wc'},{id:'w_stair',name:'Cầu thang lên tầng 2',a:[-20.5,-14],zone:'public',kind:'stairs'}]},
  // upstairs of the Whitfield house: a sealed shell reached only by the staircase (see STAIRS)
  whit2:{name:'Tầng 2 nhà Whitfield',x0:110,x1:122,z0:20,z1:40,h:3.6,front:'w',at:30,style:'house',tint:0xf4f1ea,floor:'wood',band:7,home:1,upper:1,lock:{items:['__never']},
   lobby:{name:'Hành lang tầng 2',zone:'public'},auth:['sara','rossie'],
   rooms:[{id:'w_ethan',name:'Phòng của Ethan',a:[20,25],zone:'public',kind:'ethan'},{id:'w_rossie',name:'Phòng của Rossie',a:[25,30],zone:'semi',kind:'rossie'},
-         {id:'w_wc',name:'Nhà vệ sinh chung',a:[30,34],zone:'public',kind:'wc'},{id:'w_sara',name:'Phòng ngủ của Sara',a:[34,40],zone:'semi',kind:'sara'}]},
+         {id:'w_wc',name:'Phòng tắm tầng 2',a:[30,34],zone:'public',kind:'wc'},{id:'w_sara',name:'Phòng ngủ của Sara',a:[34,40],zone:'semi',kind:'sara'}]},
  dawson:{name:'Nhà Dawson',x0:-54,x1:-40,z0:10,z1:24,h:6,front:'n',at:-47,style:'house',tint:0xe8d6c0,floor:'wood',band:6,lock:{items:['__never']},
   lobby:{name:'Phòng khách nhà Dawson',zone:'staff'},auth:['may'],
   rooms:[{id:'r_may',name:'Phòng ngủ nhà Dawson',a:[-54,-47],zone:'staff',lock:{items:['__never']},kind:'bedroom2'},{id:'r_study',name:'Phòng làm việc của Hert',a:[-47,-40],zone:'staff',lock:{items:['__never']},kind:'office2'}]},
@@ -585,7 +587,7 @@ function furnish(r){PUT=IGRP[r.b]||WORLD;const{x0,x1,z0,z1}=r,cx=(x0+x1)/2,cz=(z
   case'office2':add('desk',ca,1.5);add('computer',ca,1.5);add('chair',ca,.9,0x5a3a2a);add('shelf',ca-span/2+1.1,.3);add('plant',ca+span/2-.6,.5);add('cabinet',ca+span/2-.7,1.8);break;
   case'vault':{const[x,z]=P2(ca,1.2);F.safe(x,z,rotIn);F.safe(...P2(ca-1.6,1.2),rotIn);F.safe(...P2(ca+1.6,1.2),rotIn);break;}
   case'kitchen':add('stove',ca-1.5,.5);add('counter',ca+1,.45,3);add('cabinet',ca+span/2-.6,1.8);break;
-  case'wc':add('cabinet',ca,.35);break;
+  case'wc':add('toilet',ca-.8,.45);add('sink',ca+.8,.3);break;
   case'evidence':for(let i=-1;i<=1;i++)add('shelf',ca+i*1.8,.3,0x6f7a80);add('locker',ca,2.2,0x556070);break;
   case'exam':add('examBed',ca-1,1.3);add('cabinet',ca+span/2-.6,.4);add('desk',ca+1.8,2);break;
   case'pharm':add('shelf',ca-1.6,.3,0xf0f0f0);add('shelf',ca+.2,.3,0xf0f0f0);add('counter',ca,2.6,3.6);break;
@@ -599,7 +601,7 @@ function furnish(r){PUT=IGRP[r.b]||WORLD;const{x0,x1,z0,z1}=r,cx=(x0+x1)/2,cz=(z
   case'bedroom2':add('bed',ca,1.3,0x8e44ad);add('cabinet',ca+span/2-.6,.4);break;
   case'teen':add('bed',ca-span/4,1.3,0x2a9d8f);add('desk',ca+span/4,.6);add('computer',ca+span/4,.6);add('chair',ca+span/4,1.2,0x222222);break;
   case'homekitchen':add('stove',ca-1.2,.5);add('counter',ca+1,.45,2.4);add('table',ca,3.6,2,0xc0392b);break;
-  case'wkitchen':F.stove(-31.2,25,Math.PI);F.counter(-28.4,25.4,3.2,Math.PI,'wood');F.locker(-22,25.4,Math.PI,0xf2f2ee);F.table(-26.5,22.6,2,0x8a5a3a);
+  case'wkitchen':F.stove(-31.2,25,Math.PI);F.counter(-28.6,25.4,3.2,Math.PI,'wood');F.locker(-25.2,25.4,Math.PI,0xf2f2ee);F.table(-28.2,22.8,2,0x8a5a3a);
    for(const[cx,cz,cr]of[[-27.6,22.6,Math.PI/2],[-25.4,22.6,-Math.PI/2]])F.chair(cx,cz,cr,0x7a5030);
    {const ck=mesh(new THREE.CylinderGeometry(.32,.32,.06,20),C(0xfdf8e8),-31.86,2.2,22.6,PUT,false);ck.rotation.z=Math.PI/2;mesh(B(.04,.24,.03),C(0x222222),-31.82,2.27,22.6,PUT,false);mesh(B(.04,.03,.18),C(0x222222),-31.82,2.2,22.66,PUT,false);}
    mesh(B(.5,.3,.4),C(0x3a3a3a),-29.2,1.1,25.3,PUT,false);break;
@@ -634,8 +636,8 @@ function furnishLobby(r,b){const{x0,x1,z0,z1}=r,cx=(x0+x1)/2,cz=(z0+z1)/2,W=x1-x
   case'church':{for(let i=0;i<5;i++)for(const s of[-1,1]){const[x,z]=at(ca+s*2.6,4+i*1.7);F.lux('bench',x,z,rot+Math.PI,0,3.2,.9,.6,0x6b4a2a);}
    const[ax,az]=at(ca,1.2);mesh(B(2.4,1,1),C(0xf6f2ea),ax,.5,az);mesh(B(.12,1.6,.12),C(0xd4af37),ax,1.8,az);mesh(B(.8,.12,.12),C(0xd4af37),ax,2.2,az);break;}
   case'shed':F.desk(...at(ca,1.2),rot);F.locker(...at(ca+3,.5),rot,0x3a6a3a);F.crate(...at(ca-3,1),.9);break;
-  case'whit':F.sofa(-19.6,14.5,-Math.PI/2,0x8a6a5a);F.tv(-31.4,14.5,Math.PI/2);F.table(-24.6,14.5,2,0x6b4a2a);F.rug(-24.6,14.5,4,3,0x9a5a4a);F.lux('big_plant',-15,11,0,0,.6,1.6,.6,0x3f8a2c);F.cabinet(-31.4,11,Math.PI/2);break;
-  case'whit2':F.rug(112.5,30,1.6,14,0x7a4a3a);F.plant(110.8,20.8);F.table(110.9,28,1,0x6b4a2a);mesh(B(.08,.9,4),C(0x5a3a22),114.4,.45,38.2,PUT,false);mesh(B(3.8,.08,.08),C(0x5a3a22),112.5,.9,36.2,PUT,false);solid(110.2,114.4,36.1,36.3,'prop');break;
+  case'whit':F.sofa(-26.4,14.6,-Math.PI/2,0x8a6a5a);F.tv(-31.4,14.6,Math.PI/2);F.table(-28.9,14.6,1.4,0x6b4a2a);F.rug(-28.9,14.6,4,3.4,0x9a5a4a);F.rug(-23,14.5,1.8,8.4,0x6a4a3a);F.cabinet(-15.6,17.6,-Math.PI/2);F.plant(-15,18.8);F.lux('big_plant',-15,11,0,0,.6,1.6,.6,0x3f8a2c);F.cabinet(-31.4,11,Math.PI/2);break;
+  case'whit2':F.rug(112.5,30,1.6,14,0x7a4a3a);F.plant(110.8,20.8);F.table(110.9,28,1,0x6b4a2a);mesh(B(.08,.9,4),C(0x5a3a22),114.4,.45,38.2,PUT,false);mesh(B(3.8,.08,.08),C(0x5a3a22),112.5,.9,36.2,PUT,false);solid(110.2,114.4,36.1,36.3,'prop');for(let i=0;i<6;i++)mesh(B(.62,.02,3.4),C([0x6a4a2a,0x4a3220][i%2]),110.7+i*.6,.045,38.2,PUT,false);break;
   case'dawson':F.sofa(-47,13,0,0x3a5a7a);F.tv(-47,17,0);break;
   case'apts':for(let i=0;i<4;i++)F.locker(...at(ca-6+i*1,.4),rot,0x8a8a7a);F.plant(...at(ca+6,1));break;
   case'mill':for(let i=0;i<4;i++)F.crate(...at(cz-6+i*3.3,3+(i%2)*2),1.2);F.workbench(...at(cz+5,6),rot);break;}}
@@ -1211,7 +1213,7 @@ const markGeo=new THREE.OctahedronGeometry(.22,0),markMat=new THREE.MeshBasicMat
 function I(o){o.mark=mesh(markGeo,markMat,o.x,2.2,o.z,WORLD,false);o.mark.visible=false;INT.push(o);return o;}
 function lockOk(L){if(!L)return true;if(L.flag&&S.flags[L.flag])return true;if(L.hours&&inHours(L.hours[0],L.hours[1]))return true;return !!(L.items&&L.items.some(has));}
 function lockWhy(L){const p=[];if(L.hours)p.push('mở '+L.hours[0]+':00-'+L.hours[1]+':00');if(L.items&&!L.items.includes('__never'))p.push('cần '+L.items.map(i=>ITEMS[i]?ITEMS[i].n:i).join(' / '));if(L.flag==='movedIn')p.push('hãy bấm chuông trước');return p.length?p.join(' · '):'riêng tư, không vào được';}
-const ENVELOPE=mesh(B(.32,.02,.22),C(0xf6f4ee),-24.6,.82,14.4,WORLD,false);ENVELOPE.rotation.y=.4;ENVELOPE.visible=false;
+const ENVELOPE=mesh(B(.32,.02,.22),C(0xf6f4ee),-28.9,.82,14.5,WORLD,false);ENVELOPE.rotation.y=.4;ENVELOPE.visible=false;
 
 // shops
 const SHOPS={diner:[['coffee',3],['donut',2]],mart:[['cookies',5],['novel',8],['soda',2]],flowers:[['flowers',9]],gas:[['soda',2],['donut',2]]};
@@ -1223,8 +1225,10 @@ I({x:82,z:47.6,label:'Quầy trạm xăng',act:()=>shop('gas','Trạm xăng Cres
 
 // the Whitfield house
 I({x:-23,z:9.1,label:'Bấm chuông',pri:1,hide:()=>S.c1!==0,act:ringBell});
-I({x:-17.6,z:23.4,label:'Lên tầng 2',pri:1,act(){tp(112.5,37.2);P.face=Math.PI;}});
-I({x:112.5,z:38.4,label:'Xuống tầng 1',pri:1,act(){tp(-17.6,22.2);P.face=Math.PI;}});
+I({x:-17.6,z:23.4,label:'Lên tầng 2',pri:1,act(){stairFade(()=>{tp(112.5,37.2);P.face=Math.PI;toast('Tầng 2 · Hành lang. Phòng của bạn ở cuối hành lang.');});}});
+I({x:112.5,z:38.4,label:'Xuống tầng 1',pri:1,act(){stairFade(()=>{tp(-17.6,22.2);P.face=Math.PI;});}});
+function stairFade(fn){let d=document.getElementById('stairFade');if(!d){d=document.createElement('div');d.id='stairFade';d.style.cssText='position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .22s;z-index:40';document.body.appendChild(d);}
+ d.style.opacity=1;setTimeout(()=>{fn();setTimeout(()=>{d.style.opacity=0;},120);},230);}
 I({x:121.4,z:22.7,label:'Nhìn ra cửa sổ',act(){const n=hour()>=19.5||hour()<6;
  if(S.c1<=2){S.flags.sawCat=1;toast('Vườn sau nhà Whitfield, hàng rào gỗ, rồi sân sau nhà Dawson. Một con mèo mướp đang bò trên mái nhà kho bên đó.');}
  else toast(n?'Vườn sau tối om. Bên kia hàng rào, cửa sổ tầng hai nhà Dawson vẫn sáng đèn.':'Vườn sau có một chiếc xích đu cũ và một chỗ đậu xe trống.');}});
@@ -1237,14 +1241,14 @@ I({x:-31,z:22.6,label:'Chỉnh đồng hồ bếp nhanh 30 phút (nghịch)',hid
  const ro=npc('rossie');const seen=!ro.away&&roomAt(ro.x,ro.z)===P.room;S.flags.clockFast=1;S.flags.clockDone=1;
  if(seen){rossie(3);toast('Rossie thấy bạn vặn kim đồng hồ. Cô nhướng mày, rồi giả vờ như không thấy gì.');}else toast('Bạn vặn kim nhanh nửa tiếng. Sara sẽ dọn bữa tối sớm hơn... và nghĩ bạn đến muộn.');}});
 I({x:-31,z:22.6,label:'Chỉnh đồng hồ bếp về đúng giờ',hide:()=>S.c1!==3||!S.flags.clockFast,act(){S.flags.clockFast=0;toast('Bạn chỉnh đồng hồ về đúng giờ. Như chưa có chuyện gì.');}});
-I({x:-21,z:14.5,label:'Tai nghe của Rossie trên sofa',hide:()=>S.c1!==3||S.flags.hidBuds,act(){pick('Tai nghe của Rossie','Một đôi tai nghe trắng nằm lăn lóc trên ghế sofa.',[
+I({x:-26.4,z:14.6,label:'Tai nghe của Rossie trên sofa',hide:()=>S.c1!==3||S.flags.hidBuds,act(){pick('Tai nghe của Rossie','Một đôi tai nghe trắng nằm lăn lóc trên ghế sofa.',[
  ['Giấu đi (nghịch)',()=>{S.flags.hidBuds=1;give('buds');toast('Bạn nhét tai nghe vào túi áo. Rossie sẽ đi tìm.');}],['Để yên']]);}});
-I({x:-22.6,z:24.6,label:'Lấy túi rác',hide:()=>S.c1!==3||S.flags.trashTask!==1||has('trash'),act(){give('trash');}});
+I({x:-26.6,z:24.6,label:'Lấy túi rác',hide:()=>S.c1!==3||S.flags.trashTask!==1||has('trash'),act(){give('trash');}});
 I({x:-27.6,z:7.4,label:'Thùng rác ở lề đường',act(){if(!has('trash'))return toast('Thùng rác xanh của nhà Whitfield. Nắp có dán băng keo ghi "14".');
  pick('Thùng rác','Túi rác khá nặng và hơi rỉ nước.',[
   ['Bỏ vào thùng, đậy nắp cẩn thận',()=>{take('trash');S.flags.trashTask=2;S.flags.trashOk=1;trust(2);passTime(5);const m=npc('may');if(!m.away&&bldAt(m.x,m.z)==='dawson'){maySus(-4);toast('Bạn đậy nắp thùng thật chặt. Rèm nhà Dawson khẽ động, rồi khép lại.');}else toast('Xong. Nắp thùng đóng chặt.');}],
   ['Quẳng cạnh thùng cho nhanh (làm hỏng việc vặt)',()=>{take('trash');S.flags.trashTask=2;S.flags.trashBad=1;toast('Bạn đặt túi rác cạnh thùng rồi đi vào. Trời sắp tối, và Crestmoor có rất nhiều gấu mèo.');}]]);}});
-I({x:-26.5,z:21.4,label:'Ngồi vào bàn ăn tối',pri:1,hide:()=>S.c1!==3||hour()<dinnerT()-.25,act:()=>dinner(false)});
+I({x:-28.2,z:21.5,label:'Ngồi vào bàn ăn tối',pri:1,hide:()=>S.c1!==3||hour()<dinnerT()-.25,act:()=>dinner(false)});
 I({x:-47,z:9.1,label:'Gõ cửa nhà Dawson',act(){const m=npc('may');if(m.away||bldAt(m.x,m.z)!=='dawson')return toast('Không ai ra mở cửa.');
  if(S.flags.mayKnock===day())return toast('Lần này May không thèm ra mở cửa.');S.flags.mayKnock=day();
  scenePlay('Nhà Dawson',['Cánh cửa mở hé, vừa đủ một khe hẹp, xích an toàn vẫn cài.',SAY('may','"Gì?"'),SAY('ethan','"Cháu là Ethan, ở nhà bên. Cháu chỉ muốn nói là lúc nãy cháu nhìn con mèo trên mái, không phải nhìn nhà cô."'),

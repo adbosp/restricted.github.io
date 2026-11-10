@@ -158,7 +158,7 @@ const markGeo=new THREE.OctahedronGeometry(.22,0),markMat=new THREE.MeshBasicMat
 function I(o){o.mark=mesh(markGeo,markMat,o.x,2.2,o.z,WORLD,false);o.mark.visible=false;INT.push(o);return o;}
 function lockOk(L){if(!L)return true;if(L.flag&&S.flags[L.flag])return true;if(L.hours&&inHours(L.hours[0],L.hours[1]))return true;return !!(L.items&&L.items.some(has));}
 function lockWhy(L){const p=[];if(L.hours)p.push('mở '+L.hours[0]+':00-'+L.hours[1]+':00');if(L.items&&!L.items.includes('__never'))p.push('cần '+L.items.map(i=>ITEMS[i]?ITEMS[i].n:i).join(' / '));if(L.flag==='movedIn')p.push('hãy bấm chuông trước');return p.length?p.join(' · '):'riêng tư, không vào được';}
-const ENVELOPE=mesh(B(.32,.02,.22),C(0xf6f4ee),-24.6,.82,14.4,WORLD,false);ENVELOPE.rotation.y=.4;ENVELOPE.visible=false;
+const ENVELOPE=mesh(B(.32,.02,.22),C(0xf6f4ee),-28.9,.82,14.5,WORLD,false);ENVELOPE.rotation.y=.4;ENVELOPE.visible=false;
 
 // shops
 const SHOPS={diner:[['coffee',3],['donut',2]],mart:[['cookies',5],['novel',8],['soda',2]],flowers:[['flowers',9]],gas:[['soda',2],['donut',2]]};
@@ -170,8 +170,10 @@ I({x:82,z:47.6,label:'Quầy trạm xăng',act:()=>shop('gas','Trạm xăng Cres
 
 // the Whitfield house
 I({x:-23,z:9.1,label:'Bấm chuông',pri:1,hide:()=>S.c1!==0,act:ringBell});
-I({x:-17.6,z:23.4,label:'Lên tầng 2',pri:1,act(){tp(112.5,37.2);P.face=Math.PI;}});
-I({x:112.5,z:38.4,label:'Xuống tầng 1',pri:1,act(){tp(-17.6,22.2);P.face=Math.PI;}});
+I({x:-17.6,z:23.4,label:'Lên tầng 2',pri:1,act(){stairFade(()=>{tp(112.5,37.2);P.face=Math.PI;toast('Tầng 2 · Hành lang. Phòng của bạn ở cuối hành lang.');});}});
+I({x:112.5,z:38.4,label:'Xuống tầng 1',pri:1,act(){stairFade(()=>{tp(-17.6,22.2);P.face=Math.PI;});}});
+function stairFade(fn){let d=document.getElementById('stairFade');if(!d){d=document.createElement('div');d.id='stairFade';d.style.cssText='position:fixed;inset:0;background:#000;opacity:0;pointer-events:none;transition:opacity .22s;z-index:40';document.body.appendChild(d);}
+ d.style.opacity=1;setTimeout(()=>{fn();setTimeout(()=>{d.style.opacity=0;},120);},230);}
 I({x:121.4,z:22.7,label:'Nhìn ra cửa sổ',act(){const n=hour()>=19.5||hour()<6;
  if(S.c1<=2){S.flags.sawCat=1;toast('Vườn sau nhà Whitfield, hàng rào gỗ, rồi sân sau nhà Dawson. Một con mèo mướp đang bò trên mái nhà kho bên đó.');}
  else toast(n?'Vườn sau tối om. Bên kia hàng rào, cửa sổ tầng hai nhà Dawson vẫn sáng đèn.':'Vườn sau có một chiếc xích đu cũ và một chỗ đậu xe trống.');}});
@@ -184,14 +186,14 @@ I({x:-31,z:22.6,label:'Chỉnh đồng hồ bếp nhanh 30 phút (nghịch)',hid
  const ro=npc('rossie');const seen=!ro.away&&roomAt(ro.x,ro.z)===P.room;S.flags.clockFast=1;S.flags.clockDone=1;
  if(seen){rossie(3);toast('Rossie thấy bạn vặn kim đồng hồ. Cô nhướng mày, rồi giả vờ như không thấy gì.');}else toast('Bạn vặn kim nhanh nửa tiếng. Sara sẽ dọn bữa tối sớm hơn... và nghĩ bạn đến muộn.');}});
 I({x:-31,z:22.6,label:'Chỉnh đồng hồ bếp về đúng giờ',hide:()=>S.c1!==3||!S.flags.clockFast,act(){S.flags.clockFast=0;toast('Bạn chỉnh đồng hồ về đúng giờ. Như chưa có chuyện gì.');}});
-I({x:-21,z:14.5,label:'Tai nghe của Rossie trên sofa',hide:()=>S.c1!==3||S.flags.hidBuds,act(){pick('Tai nghe của Rossie','Một đôi tai nghe trắng nằm lăn lóc trên ghế sofa.',[
+I({x:-26.4,z:14.6,label:'Tai nghe của Rossie trên sofa',hide:()=>S.c1!==3||S.flags.hidBuds,act(){pick('Tai nghe của Rossie','Một đôi tai nghe trắng nằm lăn lóc trên ghế sofa.',[
  ['Giấu đi (nghịch)',()=>{S.flags.hidBuds=1;give('buds');toast('Bạn nhét tai nghe vào túi áo. Rossie sẽ đi tìm.');}],['Để yên']]);}});
-I({x:-22.6,z:24.6,label:'Lấy túi rác',hide:()=>S.c1!==3||S.flags.trashTask!==1||has('trash'),act(){give('trash');}});
+I({x:-26.6,z:24.6,label:'Lấy túi rác',hide:()=>S.c1!==3||S.flags.trashTask!==1||has('trash'),act(){give('trash');}});
 I({x:-27.6,z:7.4,label:'Thùng rác ở lề đường',act(){if(!has('trash'))return toast('Thùng rác xanh của nhà Whitfield. Nắp có dán băng keo ghi "14".');
  pick('Thùng rác','Túi rác khá nặng và hơi rỉ nước.',[
   ['Bỏ vào thùng, đậy nắp cẩn thận',()=>{take('trash');S.flags.trashTask=2;S.flags.trashOk=1;trust(2);passTime(5);const m=npc('may');if(!m.away&&bldAt(m.x,m.z)==='dawson'){maySus(-4);toast('Bạn đậy nắp thùng thật chặt. Rèm nhà Dawson khẽ động, rồi khép lại.');}else toast('Xong. Nắp thùng đóng chặt.');}],
   ['Quẳng cạnh thùng cho nhanh (làm hỏng việc vặt)',()=>{take('trash');S.flags.trashTask=2;S.flags.trashBad=1;toast('Bạn đặt túi rác cạnh thùng rồi đi vào. Trời sắp tối, và Crestmoor có rất nhiều gấu mèo.');}]]);}});
-I({x:-26.5,z:21.4,label:'Ngồi vào bàn ăn tối',pri:1,hide:()=>S.c1!==3||hour()<dinnerT()-.25,act:()=>dinner(false)});
+I({x:-28.2,z:21.5,label:'Ngồi vào bàn ăn tối',pri:1,hide:()=>S.c1!==3||hour()<dinnerT()-.25,act:()=>dinner(false)});
 I({x:-47,z:9.1,label:'Gõ cửa nhà Dawson',act(){const m=npc('may');if(m.away||bldAt(m.x,m.z)!=='dawson')return toast('Không ai ra mở cửa.');
  if(S.flags.mayKnock===day())return toast('Lần này May không thèm ra mở cửa.');S.flags.mayKnock=day();
  scenePlay('Nhà Dawson',['Cánh cửa mở hé, vừa đủ một khe hẹp, xích an toàn vẫn cài.',SAY('may','"Gì?"'),SAY('ethan','"Cháu là Ethan, ở nhà bên. Cháu chỉ muốn nói là lúc nãy cháu nhìn con mèo trên mái, không phải nhìn nhà cô."'),

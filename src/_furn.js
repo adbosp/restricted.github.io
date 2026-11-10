@@ -16,6 +16,8 @@ const F={
  locker(x,z,r,c=0x4a6fa5){const g=grp(x,z,r);mesh(B(.9,2,.6),C(c),0,1,0,g);mesh(B(.02,1.9,.02),C(0x222222),0,1,.31,g,false);for(let y=1.6;y<1.9;y+=.08)mesh(B(.5,.02,.02),C(0x222222),.2,y,.31,g,false);return g;},
  crate(x,z,s=1,r=0){const g=grp(x,z,r);mesh(B(s,s,s),mat('crate',1,1),0,s/2,0,g);return g;},
  rack(x,z,r){const g=grp(x,z,r);mesh(B(.8,2.2,1),C(0x1e2328),0,1.1,0,g);for(let y=.3;y<2.1;y+=.25)mesh(B(.04,.04,.02),C(0,Math.random()<.7?0x22ff66:0xff4433),-.25,y,.51,g,false);return g;},
+ toilet(x,z,r){const g=grp(x,z,r);mesh(B(.45,.42,.6),C(0xf6f6f2),0,.21,.05,g);mesh(B(.5,.7,.2),C(0xf6f6f2),0,.55,-.28,g);mesh(B(.46,.04,.5),C(0xe8e8e2),0,.44,.08,g,false);return g;},
+ sink(x,z,r){const g=grp(x,z,r);mesh(B(.6,.85,.45),C(0xe2ded6),0,.42,0,g);mesh(B(.5,.06,.36),C(0x9ab0c0),0,.87,.02,g,false);mesh(B(.6,.8,.04),C(0xcfe3ee,0x223344),0,1.55,-.2,g,false);return g;},
  washer(x,z,r){const g=grp(x,z,r);mesh(B(.9,1,.8),C(0xf5f5f5),0,.5,0,g);const d=mesh(new THREE.CylinderGeometry(.28,.28,.05,18),C(0x6a8ca8,0x0a1a2a),0,.5,.41,g,false);d.rotation.x=Math.PI/2;return g;},
  board(x,z,r){const g=grp(x,z,r);mesh(B(4,1.5,.08),mat('chalk',1,1),0,1.7,0,g,false);return g;},
  rug(x,z,w,d,c){plane(w,d,mat('carpet',w/2,d/2,c),x,.05,z);},

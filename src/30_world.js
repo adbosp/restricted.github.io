@@ -58,12 +58,12 @@ const BLD={
   lobby:{name:'Kho đồ cũ của Paul',zone:'semi'},auth:['paul'],rooms:[]},
  whit:{name:'Nhà Whitfield · số 14',x0:-32,x1:-14,z0:10,z1:26,h:6.4,front:'n',at:-23,style:'house',tint:0xf4f1ea,floor:'wood',band:7,home:1,lock:{flag:'movedIn'},
   lobby:{name:'Phòng khách nhà Whitfield',zone:'public'},auth:['sara','rossie'],
-  rooms:[{id:'w_kitchen',name:'Bếp nhà Whitfield',a:[-32,-21],zone:'public',kind:'wkitchen'},{id:'w_stair',name:'Chân cầu thang',a:[-21,-14],zone:'public',kind:'stairs'}]},
+  rooms:[{id:'w_kitchen',name:'Bếp nhà Whitfield',a:[-32,-24],zone:'public',kind:'wkitchen'},{id:'w_wc0',name:'Nhà vệ sinh tầng 1',a:[-24,-20.5],zone:'public',kind:'wc'},{id:'w_stair',name:'Cầu thang lên tầng 2',a:[-20.5,-14],zone:'public',kind:'stairs'}]},
  // upstairs of the Whitfield house: a sealed shell reached only by the staircase (see STAIRS)
  whit2:{name:'Tầng 2 nhà Whitfield',x0:110,x1:122,z0:20,z1:40,h:3.6,front:'w',at:30,style:'house',tint:0xf4f1ea,floor:'wood',band:7,home:1,upper:1,lock:{items:['__never']},
   lobby:{name:'Hành lang tầng 2',zone:'public'},auth:['sara','rossie'],
   rooms:[{id:'w_ethan',name:'Phòng của Ethan',a:[20,25],zone:'public',kind:'ethan'},{id:'w_rossie',name:'Phòng của Rossie',a:[25,30],zone:'semi',kind:'rossie'},
-         {id:'w_wc',name:'Nhà vệ sinh chung',a:[30,34],zone:'public',kind:'wc'},{id:'w_sara',name:'Phòng ngủ của Sara',a:[34,40],zone:'semi',kind:'sara'}]},
+         {id:'w_wc',name:'Phòng tắm tầng 2',a:[30,34],zone:'public',kind:'wc'},{id:'w_sara',name:'Phòng ngủ của Sara',a:[34,40],zone:'semi',kind:'sara'}]},
  dawson:{name:'Nhà Dawson',x0:-54,x1:-40,z0:10,z1:24,h:6,front:'n',at:-47,style:'house',tint:0xe8d6c0,floor:'wood',band:6,lock:{items:['__never']},
   lobby:{name:'Phòng khách nhà Dawson',zone:'staff'},auth:['may'],
   rooms:[{id:'r_may',name:'Phòng ngủ nhà Dawson',a:[-54,-47],zone:'staff',lock:{items:['__never']},kind:'bedroom2'},{id:'r_study',name:'Phòng làm việc của Hert',a:[-47,-40],zone:'staff',lock:{items:['__never']},kind:'office2'}]},
@@ -260,7 +260,7 @@ function furnish(r){PUT=IGRP[r.b]||WORLD;const{x0,x1,z0,z1}=r,cx=(x0+x1)/2,cz=(z
   case'office2':add('desk',ca,1.5);add('computer',ca,1.5);add('chair',ca,.9,0x5a3a2a);add('shelf',ca-span/2+1.1,.3);add('plant',ca+span/2-.6,.5);add('cabinet',ca+span/2-.7,1.8);break;
   case'vault':{const[x,z]=P2(ca,1.2);F.safe(x,z,rotIn);F.safe(...P2(ca-1.6,1.2),rotIn);F.safe(...P2(ca+1.6,1.2),rotIn);break;}
   case'kitchen':add('stove',ca-1.5,.5);add('counter',ca+1,.45,3);add('cabinet',ca+span/2-.6,1.8);break;
-  case'wc':add('cabinet',ca,.35);break;
+  case'wc':add('toilet',ca-.8,.45);add('sink',ca+.8,.3);break;
   case'evidence':for(let i=-1;i<=1;i++)add('shelf',ca+i*1.8,.3,0x6f7a80);add('locker',ca,2.2,0x556070);break;
   case'exam':add('examBed',ca-1,1.3);add('cabinet',ca+span/2-.6,.4);add('desk',ca+1.8,2);break;
   case'pharm':add('shelf',ca-1.6,.3,0xf0f0f0);add('shelf',ca+.2,.3,0xf0f0f0);add('counter',ca,2.6,3.6);break;
@@ -274,7 +274,7 @@ function furnish(r){PUT=IGRP[r.b]||WORLD;const{x0,x1,z0,z1}=r,cx=(x0+x1)/2,cz=(z
   case'bedroom2':add('bed',ca,1.3,0x8e44ad);add('cabinet',ca+span/2-.6,.4);break;
   case'teen':add('bed',ca-span/4,1.3,0x2a9d8f);add('desk',ca+span/4,.6);add('computer',ca+span/4,.6);add('chair',ca+span/4,1.2,0x222222);break;
   case'homekitchen':add('stove',ca-1.2,.5);add('counter',ca+1,.45,2.4);add('table',ca,3.6,2,0xc0392b);break;
-  case'wkitchen':F.stove(-31.2,25,Math.PI);F.counter(-28.4,25.4,3.2,Math.PI,'wood');F.locker(-22,25.4,Math.PI,0xf2f2ee);F.table(-26.5,22.6,2,0x8a5a3a);
+  case'wkitchen':F.stove(-31.2,25,Math.PI);F.counter(-28.6,25.4,3.2,Math.PI,'wood');F.locker(-25.2,25.4,Math.PI,0xf2f2ee);F.table(-28.2,22.8,2,0x8a5a3a);
    for(const[cx,cz,cr]of[[-27.6,22.6,Math.PI/2],[-25.4,22.6,-Math.PI/2]])F.chair(cx,cz,cr,0x7a5030);
    {const ck=mesh(new THREE.CylinderGeometry(.32,.32,.06,20),C(0xfdf8e8),-31.86,2.2,22.6,PUT,false);ck.rotation.z=Math.PI/2;mesh(B(.04,.24,.03),C(0x222222),-31.82,2.27,22.6,PUT,false);mesh(B(.04,.03,.18),C(0x222222),-31.82,2.2,22.66,PUT,false);}
    mesh(B(.5,.3,.4),C(0x3a3a3a),-29.2,1.1,25.3,PUT,false);break;
@@ -309,8 +309,8 @@ function furnishLobby(r,b){const{x0,x1,z0,z1}=r,cx=(x0+x1)/2,cz=(z0+z1)/2,W=x1-x
   case'church':{for(let i=0;i<5;i++)for(const s of[-1,1]){const[x,z]=at(ca+s*2.6,4+i*1.7);F.lux('bench',x,z,rot+Math.PI,0,3.2,.9,.6,0x6b4a2a);}
    const[ax,az]=at(ca,1.2);mesh(B(2.4,1,1),C(0xf6f2ea),ax,.5,az);mesh(B(.12,1.6,.12),C(0xd4af37),ax,1.8,az);mesh(B(.8,.12,.12),C(0xd4af37),ax,2.2,az);break;}
   case'shed':F.desk(...at(ca,1.2),rot);F.locker(...at(ca+3,.5),rot,0x3a6a3a);F.crate(...at(ca-3,1),.9);break;
-  case'whit':F.sofa(-19.6,14.5,-Math.PI/2,0x8a6a5a);F.tv(-31.4,14.5,Math.PI/2);F.table(-24.6,14.5,2,0x6b4a2a);F.rug(-24.6,14.5,4,3,0x9a5a4a);F.lux('big_plant',-15,11,0,0,.6,1.6,.6,0x3f8a2c);F.cabinet(-31.4,11,Math.PI/2);break;
-  case'whit2':F.rug(112.5,30,1.6,14,0x7a4a3a);F.plant(110.8,20.8);F.table(110.9,28,1,0x6b4a2a);mesh(B(.08,.9,4),C(0x5a3a22),114.4,.45,38.2,PUT,false);mesh(B(3.8,.08,.08),C(0x5a3a22),112.5,.9,36.2,PUT,false);solid(110.2,114.4,36.1,36.3,'prop');break;
+  case'whit':F.sofa(-26.4,14.6,-Math.PI/2,0x8a6a5a);F.tv(-31.4,14.6,Math.PI/2);F.table(-28.9,14.6,1.4,0x6b4a2a);F.rug(-28.9,14.6,4,3.4,0x9a5a4a);F.rug(-23,14.5,1.8,8.4,0x6a4a3a);F.cabinet(-15.6,17.6,-Math.PI/2);F.plant(-15,18.8);F.lux('big_plant',-15,11,0,0,.6,1.6,.6,0x3f8a2c);F.cabinet(-31.4,11,Math.PI/2);break;
+  case'whit2':F.rug(112.5,30,1.6,14,0x7a4a3a);F.plant(110.8,20.8);F.table(110.9,28,1,0x6b4a2a);mesh(B(.08,.9,4),C(0x5a3a22),114.4,.45,38.2,PUT,false);mesh(B(3.8,.08,.08),C(0x5a3a22),112.5,.9,36.2,PUT,false);solid(110.2,114.4,36.1,36.3,'prop');for(let i=0;i<6;i++)mesh(B(.62,.02,3.4),C([0x6a4a2a,0x4a3220][i%2]),110.7+i*.6,.045,38.2,PUT,false);break;
   case'dawson':F.sofa(-47,13,0,0x3a5a7a);F.tv(-47,17,0);break;
   case'apts':for(let i=0;i<4;i++)F.locker(...at(ca-6+i*1,.4),rot,0x8a8a7a);F.plant(...at(ca+6,1));break;
   case'mill':for(let i=0;i<4;i++)F.crate(...at(cz-6+i*3.3,3+(i%2)*2),1.2);F.workbench(...at(cz+5,6),rot);break;}}
